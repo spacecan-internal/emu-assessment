@@ -50,3 +50,73 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+  secrets-audit:
+    name: Secrets Audit
+    runs-on: ubuntu-latest
+    needs: [create-issue]
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v2
+      - name: Run script
+        run: |
+          ./Secrets_Audit/secrets_audit.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Run
+        if: false
+        run: |
+          RESULT_ACTIONS_SECRETS=$'\n\n## Actions Secrets'
+          RESULT_ACTIONS_SECRETS+=$'\n\n'
+          RESULT_DEPENDANBOT_SECRETS=$'\n\n## Dependabot Secrets'
+          RESULT_DEPENDANBOT_SECRETS+=$'\n\n'
+          RESULT_CODESPACES_SECRETS=$'\n\n## Codespaces Secrets'
+          RESULT_CODESPACES_SECRETS+=$'\n\n'
+
+          REPOS=$(gh repo list $ORG_NAME --json name --jq '.[].name')
+          while read -r repo ; do
+              echo "Auditing repository $repo ..."
+              REPO_ACTIONS_SECRETS=$(gh secret list --app actions --repo $ORG_NAME/$repo)
+              REPO_DEPENDANBOT_SECRETS=$(gh secret list --app dependabot --repo $ORG_NAME/$repo)
+              REPO_CODESPACES_SECRETS=$(gh secret list --app codespaces --repo $ORG_NAME/$repo)
+
+              if [ "$REPO_ACTIONS_SECRETS" != "" ]; then
+                  RESULT_ACTIONS_SECRETS+=$'\n\n### '
+                  RESULT_ACTIONS_SECRETS+="$repo"
+                  RESULT_ACTIONS_SECRETS+=$'\n\n```\n'
+                  RESULT_ACTIONS_SECRETS+=$REPO_ACTIONS_SECRETS
+                  RESULT_ACTIONS_SECRETS+=$'\n```\n\n'
+              fi
+              if [ "$REPO_DEPENDANBOT_SECRETS" != "" ]; then
+                  RESULT_DEPENDANBOT_SECRETS+=$'\n\n### '
+                  RESULT_DEPENDANBOT_SECRETS+="$repo"
+                  RESULT_DEPENDANBOT_SECRETS+=$'\n\n```\n'
+                  RESULT_DEPENDANBOT_SECRETS+=$REPO_DEPENDANBOT_SECRETS
+                  RESULT_DEPENDANBOT_SECRETS+=$'\n```\n\n'
+              fi
+              if [ "$REPO_CODESPACES_SECRETS" != "" ]; then
+                  RESULT_CODESPACES_SECRETS+=$'\n\n### '
+                  RESULT_CODESPACES_SECRETS+="$repo"
+                  RESULT_CODESPACES_SECRETS+=$'\n\n```\n'
+                  RESULT_CODESPACES_SECRETS+=$REPO_CODESPACES_SECRETS
+                  RESULT_CODESPACES_SECRETS+=$'\n```\n\n'
+              fi
+          done <<< $REPOS
+
+          RESULT_SECRETS=$'\n\n# Secrets \n'
+          RESULT_SECRETS+=$RESULT_ACTIONS_SECRETS
+          RESULT_SECRETS+=$RESULT_DEPENDANBOT_SECRETS
+          RESULT_SECRETS+=$RESULT_CODESPACES_SECRETS
+
+          gh issue comment $ISSUE_URL --body "$RESULT_SECRETS"
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Comment Issue
+        if: false
+        run: |
+          gh issue comment $ISSUE_URL --body-file RESULT_SECRETS.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
