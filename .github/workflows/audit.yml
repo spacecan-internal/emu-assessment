@@ -1,0 +1,29 @@
+name: Migration assessment
+
+on:
+  workflow_dispatch:
+    inputs:
+      org-name:
+        description: "Please provide an org name"
+        required: true
+    
+env:
+  PAT: ${{ secrets.PAT }}
+  ORG_NAME: ${{ github.event.inputs.org-name }}
+  RESULT: "# Assessment Result"
+
+jobs:
+  lfs-audit:
+    name: LFS Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v2
+      - name: Build & Run
+        run: |
+          cd LFS_Audit
+          go build .
+          ./LFSAudit audit --org-name="$ORG_NAME" --pat-token="$PAT"
+          RESULT+=$'\n```\n\n## LFS \n```\n'
+          RESULT+=$(cat repos_audited.txt)
+          RESULT+=$'\n```\n\n'
