@@ -45,7 +45,7 @@ jobs:
         id: lfs-output
         run: |
           AUDIT=$(cat ./LFS_Audit/repos_audited.txt)
-          RESULT=$(jq -n '$ARGS.positional' --args "${AUDIT[@]}" | jq '.[] as $repo | {"repo":$repo}')
+          RESULT=$(jq --raw-input --slurp 'split("\n") | map(select(. != ""))' LFS_Audit/repos_audited.txt | jq '[ .[] | {"repo":., "lfs": true} ]')
 
           gh issue comment $ISSUE_URL --body "$RESULT"
 

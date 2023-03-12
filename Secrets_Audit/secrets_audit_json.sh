@@ -72,7 +72,7 @@ for secrettypes in ${!secrettypes@}; do
         JSON_RESULT+='},'
     done <<< $REPOS
 
-
+    JSON_RESULT=${JSON_RESULT::-1} 
     JSON_RESULT+='],"org":{'
 
     ORG_SECRETS=($(build_org_secrets_list $ORG_NAME "${secrettypes[type]}" | awk '{ print $1 }'))
@@ -87,6 +87,7 @@ for secrettypes in ${!secrettypes@}; do
 done
 unset -n secrettypes
 
+JSON_RESULT=${JSON_RESULT::-1} 
 JSON_RESULT+="]"
 
 echo "SECRETS_OUTPUT=$JSON_RESULT" >> "$GITHUB_OUTPUT"
