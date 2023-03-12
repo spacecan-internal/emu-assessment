@@ -112,14 +112,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
-      - name: Comment Issue
-        if: false
-        run: |
-          gh issue comment $ISSUE_URL --body-file RESULT_SECRETS.md
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
-          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
   apps-audit:
     name: GitHub Apps Audit
     runs-on: ubuntu-latest
@@ -159,3 +151,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+
+
+          

@@ -101,7 +101,7 @@ var auditCmd = &cobra.Command{
 		for _, repo := range repos {
 			_, _, resp, err := client.Repositories.GetContents(ctx, orgName, repo.GetName(), ".gitattributes", nil)
 			if err == nil && resp.StatusCode != http.StatusNotFound {
-				repoURLs = append(repoURLs, repo.GetHTMLURL())
+				repoURLs = append(repoURLs, repo.GetName())
 			}
 		}
 
