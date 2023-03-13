@@ -161,6 +161,12 @@ jobs:
         with:
           name: repositories
           path: repositories.json
+      - name: Run script
+        run: |
+          ./json-to-md.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
 
 
           

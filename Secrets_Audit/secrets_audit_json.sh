@@ -1,5 +1,3 @@
-ORG_NAME=sparlant-demo-org
-
 build_repo_secrets_list() {
   repo_name=$1
   secret_type=$2
@@ -92,4 +90,4 @@ JSON_RESULT+="]"
 
 gh issue comment $ISSUE_URL --body "$JSON_RESULT"
 
-echo $RESULT > secrets.json
+echo $JSON_RESULT > secrets.json
