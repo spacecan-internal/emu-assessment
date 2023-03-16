@@ -142,10 +142,27 @@ jobs:
         with:
           name: projects
           path: projects.json  
+  environments-audit:
+    name: Environments Audit
+    runs-on: ubuntu-latest
+    needs: [create-issue]
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v2
+      - name: Run script
+        run: |
+          ./Environments_Audit/environments_audit_json.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: environments
+          path: environments.json   
   report:
     name: Report
     runs-on: ubuntu-latest
-    needs: [create-issue, lfs-audit, visibility-audit, permissions-audit, apps-audit, secrets-audit, projects-audit]
+    needs: [create-issue, lfs-audit, visibility-audit, permissions-audit, apps-audit, secrets-audit, projects-audit, environments-audit]
     steps:
       - name: Checkout files
         uses: actions/checkout@v2
@@ -167,6 +184,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: projects
+      - uses: actions/download-artifact@v3
+        with:
+          name: environments
       - name: Run script
         run: |
           ./report.sh

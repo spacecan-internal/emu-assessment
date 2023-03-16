@@ -14,7 +14,7 @@ According to the [official documentation](https://docs.github.com/en/early-acces
     - [x] Dependabot
     - [x] Codespaces
     - [x] Actions
-- [ ] GitHub Actions Environments
+- [x] GitHub Actions Environments
 - [ ] Webhook secrets
 - [x] Projects (classic) at the organization level
 - [x] Any Projects (the new projects experience)
