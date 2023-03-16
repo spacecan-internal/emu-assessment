@@ -1,6 +1,6 @@
 jq -jr '.[] | " ## Repository ",.repo,"  \n - Visibility: ",.visibility," \n - LFS: ",(.lfs | tostring)," \n - Permissions: \n \n | Username | RoleName | \n |---|---| \n ",(.permissions[]? | "| ",.login," | ",.role_name," | \n")," \n - Secrets: \n \n | Type | SecretName | \n |---|---| \n ",(.actions_secret[]? | "| Actions Secret | ",.," | \n"),(.dependabot_secret[]? | "| Dependabot Secret | ",.," | \n"),(.codespaces_secret[]? | "| Codespaces Secret | ",.," | \n")' repositories.json > repositories.md
 
-jq -jr '.[] | " # Organization ", .org, " report \n \n - Apps: \n \n | Id | AppSlug | \n |---|---| \n ",(.apps[]? | "| ",.id," | ",.app_slug," | \n")," \n - Secrets: \n \n | Type | SecretName | \n |---|---| \n ",(.actions_secret[]? | "| Actions Secret | ",.," | \n"),(.dependabot_secret[]? | "| Dependabot Secret | ",.," | \n"),(.codespaces_secret[]? | "| Codespaces Secret | ",.," | \n")' org.json > org.md
+jq -jr '.[] | " # Organization ", .org, " report \n \n - Apps: \n \n | Id | AppSlug | \n |---|---| \n ",(.apps[]? | "| ",.id," | ",.app_slug," | \n")," \n - Secrets: \n \n | Type | SecretName | \n |---|---| \n ",(.actions_secret[]? | "| Actions Secret | ",.," | \n"),(.dependabot_secret[]? | "| Dependabot Secret | ",.," | \n"),(.codespaces_secret[]? | "| Codespaces Secret | ",.," | \n"), "\n - Projects: \n \n | Type | Id | Name | \n |---|---|---| \n ",(.projects?.projectsV2[]? | "| V2 | ",.id," | ",.title," | \n"),(.projects?.projectsOld[]? | "| Old | ",.id," | ",.name," | \n")' org.json > org.md
 
 cat org.md repositories.md > report.md
 

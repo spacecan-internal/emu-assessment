@@ -16,8 +16,8 @@ According to the [official documentation](https://docs.github.com/en/early-acces
     - [x] Actions
 - [ ] GitHub Actions Environments
 - [ ] Webhook secrets
-- [ ] Projects (classic) at the organization level
-- [ ] Any Projects (the new projects experience)
+- [x] Projects (classic) at the organization level
+- [x] Any Projects (the new projects experience)
 - [ ] Discussions at the repository level
 - [ ] Packages in GitHub Packages
 - [x] GitHub Apps
