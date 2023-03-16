@@ -1,6 +1,6 @@
 PROJECTS_V2_RESULT=$(gh api graphql -f query='
   query{
-    organization(login: "sparlant-demo-org"){
+    organization(login: "'$ORG_NAME'"){
       projectsV2(first: 100) { 
         nodes {
           id
@@ -13,7 +13,7 @@ PROJECTS_V2_RESULT=$(gh api graphql -f query='
 
 PROJECTS_OLD_RESULT=$(gh api graphql -f query='
   query{
-    organization(login: "sparlant-demo-org"){
+    organization(login: "'$ORG_NAME'"){
       projects(first: 100) { 
         nodes {
           id
