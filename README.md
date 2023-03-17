@@ -18,7 +18,7 @@ According to the [official documentation](https://docs.github.com/en/early-acces
 - [ ] Webhook secrets
 - [x] Projects (classic) at the organization level
 - [x] Any Projects (the new projects experience)
-- [ ] Discussions at the repository level
+- [x] Discussions at the repository level
 - [ ] Packages in GitHub Packages
 - [x] GitHub Apps
 - [x] User access to the repository

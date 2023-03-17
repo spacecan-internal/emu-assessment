@@ -1,5 +1,3 @@
-ORG_NAME=sparlant-demo-org
-
 REPOS=$(gh repo list $ORG_NAME --json name --jq '.[].name')
 
 echo "[]" > protections.json
