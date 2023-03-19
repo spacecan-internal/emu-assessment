@@ -192,11 +192,28 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: protections
-          path: protections.json   
+          path: protections.json    
+  packages-audit:
+    name: Packages Audit
+    runs-on: ubuntu-latest
+    needs: [create-issue]
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v2
+      - name: Run script
+        run: |
+          ./Packages_Audit/packages_audit_json.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: packages
+          path: packages.json   
   report:
     name: Report
     runs-on: ubuntu-latest
-    needs: [create-issue, lfs-audit, visibility-audit, permissions-audit, apps-audit, secrets-audit, projects-audit, environments-audit]
+    needs: [create-issue, lfs-audit, visibility-audit, permissions-audit, apps-audit, secrets-audit, projects-audit, environments-audit, discussions-audit, protections-audit, packages-audit]
     steps:
       - name: Checkout files
         uses: actions/checkout@v2
@@ -227,6 +244,9 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: discussions
+      - uses: actions/download-artifact@v3
+        with:
+          name: packages
       - name: Run script
         run: |
           ./report.sh

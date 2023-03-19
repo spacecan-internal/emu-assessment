@@ -19,7 +19,7 @@ According to the [official documentation](https://docs.github.com/en/early-acces
 - [x] Projects (classic) at the organization level
 - [x] Any Projects (the new projects experience)
 - [x] Discussions at the repository level
-- [ ] Packages in GitHub Packages
+- [x] Packages in GitHub Packages
 - [x] GitHub Apps
 - [x] User access to the repository
 - [x] Repository visibility  
