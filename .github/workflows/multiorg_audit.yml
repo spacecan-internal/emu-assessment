@@ -10,7 +10,6 @@ on:
     
 env:
   PAT: ${{ secrets.PAT }}
-  ORG_NAME: ${{ github.event.inputs.org-name }}
 
 jobs:
   create-matrix:
@@ -22,8 +21,6 @@ jobs:
         id: create-matrix
         run: |
           ORGS=$(echo -n "$org_names" | jq -cRs 'split(",")')
-          echo $org_names
-          echo $ORGS
           echo "ORGS=$ORGS" >> "$GITHUB_OUTPUT"
         env:
           org_names: ${{ github.event.inputs.org_names }}

@@ -1,4 +1,6 @@
-REPOS=$(gh repo list $ORG_NAME --json name --jq '.[].name')
+#!/bin/bash
+
+REPOS=$(gh repo list "$ORG_NAME" --json name --jq '.[].name')
 
 echo "[]" > protections.json
 
@@ -26,7 +28,7 @@ while read -r repo ; do
       }' | REPO=$repo jq '[{ repo: env.REPO, branchProtectionRules: [ .data.repository.branchProtectionRules.nodes[] ] }]'
     )
 
-    echo $PROTECTIONS_RESULT > repo_protections.json
+    echo "$PROTECTIONS_RESULT" > repo_protections.json
 
     cp protections.json tmp.json
     jq -s add tmp.json repo_protections.json > protections.json
@@ -34,4 +36,4 @@ while read -r repo ; do
     rm -rf repo_protections.json
     rm -rf tmp.json
 
-done <<< $REPOS
+done <<< "$REPOS"

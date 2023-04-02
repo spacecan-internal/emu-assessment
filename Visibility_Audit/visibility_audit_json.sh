@@ -1,5 +1,7 @@
-REPOS=$(gh api /orgs/$ORG_NAME/repos | jq -r '[ .[] | select(.visibility != "private") | { repo: .name, visibility: .visibility } ]')
+#!/bin/bash
+
+REPOS=$(gh api "/orgs/$ORG_NAME/repos" | jq -r '[ .[] | select(.visibility != "private") | { repo: .name, visibility: .visibility } ]')
 
 RESULT_VISIBILITY=$REPOS
 
-echo $RESULT_VISIBILITY > visibility.json
+echo "$RESULT_VISIBILITY" > visibility.json

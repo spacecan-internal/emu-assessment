@@ -26,10 +26,11 @@ You can manage repository permissions by:
     - [UI](https://docs.github.com/en/organizations/managing-user-access-to-your-organizations-repositories/managing-an-individuals-access-to-an-organization-repository)
     - [API](https://docs.github.com/en/rest/collaborators/collaborators?apiVersion=2022-11-28#add-a-repository-collaborator)
 
-We strongly recommend to use teams for managing repository permissions and visibility, facilitating conversaton, and reducing management overhead. Teams used for permission management should be synced with an IdP group (like Okta). This allows existng IdP processes and audit controls to be relied upon for managing access to code.Onboarding, ofboarding, and access changes are all managed by the IdP.  
-With teams, you can easily see which teams maintain which projects: a list of all repositories to which a team has been granted explicit permissions (beyond the organizaton’s default) is available on each team’s page in GitHub. 
+We strongly recommend to use teams for managing repository permissions and visibility, facilitating conversaton, and reducing management overhead. Teams used for permission management should be synced with an IdP group (like Okta). This allows existng IdP processes and audit controls to be relied upon for managing access to code.  
+Onboarding, ofboarding, and access changes are all managed by the IdP.  
+With teams, you can easily see which teams maintain which projects: a list of all repositories to which a team has been granted explicit permissions (beyond the organizaton’s default) is available on each team’s page in GitHub.  
 
-## Secrets	
+## Secrets
 
 You can manage:
 - at the repository level:

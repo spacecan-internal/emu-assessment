@@ -1,3 +1,5 @@
+#!/bin/bash
+
 jq '.[] | select(.secret_type=="Actions Secrets")' secrets.json | jq '[ .repos[] | { repo: .repo, actions_secret: .secrets }  ]' > actions_secrets.json
 jq '.[] | select(.secret_type=="Dependabot Secrets")' secrets.json | jq '[ .repos[] | { repo: .repo, dependabot_secret: .secrets }  ]' > dependabot_secrets.json
 jq '.[] | select(.secret_type=="Codespaces Secrets")' secrets.json | jq '[ .repos[] | { repo: .repo, codespaces_secret: .secrets }  ]' > codespaces_secrets.json

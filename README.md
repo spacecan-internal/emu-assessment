@@ -37,7 +37,7 @@ You have to create a personnal access token with this scope:
 - `read:project`
 - `repo`
 
-Then, you have to store the value in a GitHub Actions Secret called `PAT`. 
+Then, you have to store the value in a GitHub Actions Secret called `PAT`.  
 
 Finally, you can manually trigger:
 - the workflow called `Org Migration assessment` and give the name of the org that you want to assess

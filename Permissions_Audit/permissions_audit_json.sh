@@ -1,4 +1,7 @@
-REPOS=$(gh repo list $ORG_NAME --json name --jq '.[].name')
+#!/bin/bash
+
+
+REPOS=$(gh repo list "$ORG_NAME" --json name --jq '.[].name')
 
 RESULT_PERMISSIONS='['
 
@@ -15,10 +18,10 @@ while read -r repo ; do
 
   RESULT_PERMISSIONS+='},'
 
-done <<< $REPOS
+done <<< "$REPOS"
 
 RESULT_PERMISSIONS=${RESULT_PERMISSIONS::-1} 
 RESULT_PERMISSIONS+=']'
 
-echo $RESULT_PERMISSIONS > permissions.json
+echo "$RESULT_PERMISSIONS" > permissions.json
 

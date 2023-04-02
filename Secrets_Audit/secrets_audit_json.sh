@@ -1,3 +1,5 @@
+#!/bin/bash
+
 build_repo_secrets_list() {
   repo_name=$1
   secret_type=$2
@@ -15,8 +17,6 @@ build_org_secrets_list() {
 
   echo "$REPO_SECRETS"
 }
-
-RESULT_SECRETS=$'\n\n# Secrets \n'
 
 declare -A secrettypes0=(
     [name]='Actions Secrets'
@@ -39,7 +39,7 @@ declare -A secrettypes2=(
 
 declare -n secrettypes
 
-REPOS=$(gh repo list $ORG_NAME --json name --jq '.[].name')
+REPOS=$(gh repo list "$ORG_NAME" --json name --jq '.[].name')
 
 JSON_RESULT="["
 
@@ -68,7 +68,7 @@ for secrettypes in ${!secrettypes@}; do
             JSON_RESULT+="$REPO_JSON_RESULT"
         fi
         JSON_RESULT+='},'
-    done <<< $REPOS
+    done <<< "$REPOS"
 
     JSON_RESULT=${JSON_RESULT::-1} 
     JSON_RESULT+='],"org":{'
@@ -88,4 +88,4 @@ unset -n secrettypes
 JSON_RESULT=${JSON_RESULT::-1} 
 JSON_RESULT+="]"
 
-echo $JSON_RESULT > secrets.json
+echo "$JSON_RESULT" > secrets.json

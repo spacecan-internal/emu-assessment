@@ -1,3 +1,5 @@
+#!/bin/bash
+
 add_value() {
   value=$1
 
@@ -25,13 +27,13 @@ SUMMARY+=$'| '
 SUMMARY+="$org_name"
 SUMMARY+=$' |'
 
-add_value $org_apps
-add_value $org_actions_secrets
-add_value $org_dependabot_secret
-add_value $org_codespaces_secret
-add_value $org_codespaces_secret
-add_value $org_projects
-add_value $org_packages
+add_value "$org_apps"
+add_value "$org_actions_secrets"
+add_value "$org_dependabot_secret"
+add_value "$org_codespaces_secret"
+add_value "$org_codespaces_secret"
+add_value "$org_projects"
+add_value "$org_packages"
 
 SUMMARY+=$'\n\n\n## Repositories \n\n'
 
@@ -39,16 +41,16 @@ SUMMARY+=$'\n\n\n | Repo | Visibility | LFS | Permissions | Actions Secrets | De
 SUMMARY+=$' \n|---|---|---|---|---|---|---|---|---|---|  \n '
 
 while read repo; do
-  repo_name=$(jq -r '. | .repo' <<< $repo)
-  visibility=$(jq -r '. | .visibility' <<< $repo)
-  lfs=$(jq -r '. | .lfs' <<< $repo)
-  permissions=$(jq -c '. | .permissions' <<< $repo)
-  actions_secrets=$(jq -c '. | .actions_secret' <<< $repo)
-  dependabot_secret=$(jq -c '. | .dependabot_secret' <<< $repo)
-  codespaces_secret=$(jq -c '. | .codespaces_secret' <<< $repo)
-  env=$(jq -c '. | .env' <<< $repo)
-  branchProtectionRules=$(jq -c '. | .branchProtectionRules' <<< $repo)
-  discussions=$(jq -c '. | .discussions' <<< $repo)
+  repo_name=$(jq -r '. | .repo' <<< "$repo")
+  visibility=$(jq -r '. | .visibility' <<< "$repo")
+  lfs=$(jq -r '. | .lfs' <<< "$repo")
+  permissions=$(jq -c '. | .permissions' <<< "$repo")
+  actions_secrets=$(jq -c '. | .actions_secret' <<< "$repo")
+  dependabot_secret=$(jq -c '. | .dependabot_secret' <<< "$repo")
+  codespaces_secret=$(jq -c '. | .codespaces_secret' <<< "$repo")
+  env=$(jq -c '. | .env' <<< "$repo")
+  branchProtectionRules=$(jq -c '. | .branchProtectionRules' <<< "$repo")
+  discussions=$(jq -c '. | .discussions' <<< "$repo")
 
   SUMMARY+=$'| '
   SUMMARY+="$repo_name"

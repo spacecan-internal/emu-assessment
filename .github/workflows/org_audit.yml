@@ -26,15 +26,15 @@ jobs:
       - name: Delete Previous Issue
         run: |
           SEARCH='"Assessment issue - '
-          SEARCH+=$ORG_NAME
+          SEARCH+="$ORG_NAME"
           SEARCH+='"'
-          ISSUES=$(gh issue list --search "$SEARCH" --json url --repo $REPO)
-          while read issueUrl; do
+          ISSUES=$(gh issue list --search "$SEARCH" --json url --repo "$REPO")
+          while read -r issueUrl; do
             if [ "$issueUrl" != "" ];
             then
-              gh issue close $issueUrl
+              gh issue close "$issueUrl"
             fi
-          done <<< $(jq -c -r '.[].url' <<< $ISSUES)
+          done <<< $(jq -c -r '.[].url' <<< "$ISSUES")
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           REPO: ${{ github.repository }}
@@ -72,7 +72,7 @@ jobs:
             RESULT="[]"
           fi
 
-          gh issue comment $ISSUE_URL --body "$RESULT"
+          gh issue comment "$ISSUE_URL" --body "$RESULT"
 
           echo $RESULT > lfs.json
         env:
@@ -101,7 +101,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment
         run: |
-          gh issue comment $ISSUE_URL --body-file secrets.json
+          gh issue comment "$ISSUE_URL" --body-file secrets.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -126,7 +126,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment
         run: |
-          gh issue comment $ISSUE_URL --body-file apps.json
+          gh issue comment "$ISSUE_URL" --body-file apps.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -151,7 +151,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment
         run: |
-          gh issue comment $ISSUE_URL --body-file permissions.json
+          gh issue comment "$ISSUE_URL" --body-file permissions.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -176,7 +176,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment
         run: |
-          gh issue comment $ISSUE_URL --body-file visibility.json
+          gh issue comment "$ISSUE_URL" --body-file visibility.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -201,7 +201,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment
         run: |
-          gh issue comment $ISSUE_URL --body-file projects.json
+          gh issue comment "$ISSUE_URL" --body-file projects.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -226,7 +226,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment
         run: |
-          gh issue comment $ISSUE_URL --body-file environments.json
+          gh issue comment "$ISSUE_URL" --body-file environments.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -251,7 +251,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment
         run: |
-          gh issue comment $ISSUE_URL --body-file discussions.json
+          gh issue comment "$ISSUE_URL" --body-file discussions.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -276,7 +276,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment
         run: |
-          gh issue comment $ISSUE_URL --body-file protections.json
+          gh issue comment "$ISSUE_URL" --body-file protections.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -301,7 +301,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment
         run: |
-          gh issue comment $ISSUE_URL --body-file packages.json
+          gh issue comment "$ISSUE_URL" --body-file packages.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -356,8 +356,8 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment (JSON report)
         run: |
-          gh issue comment $ISSUE_URL --body-file org.json
-          gh issue comment $ISSUE_URL --body-file repositories.json
+          gh issue comment "$ISSUE_URL" --body-file org.json
+          gh issue comment "$ISSUE_URL" --body-file repositories.json
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -379,7 +379,7 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment (MD report)
         run: |
-          gh issue comment $ISSUE_URL --body-file report.md
+          gh issue comment "$ISSUE_URL" --body-file report.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
@@ -393,14 +393,14 @@ jobs:
           ORG_NAME: ${{ inputs.ORG_NAME }}
       - name: Add comment (summary report)
         run: |
-          gh issue edit $ISSUE_URL --body-file summary.md
+          gh issue edit "$ISSUE_URL" --body-file summary.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}  
           ORG_NAME: ${{ inputs.ORG_NAME }}   
       - name: Add instruction
         run: |
-          gh issue comment $ISSUE_URL --body-file instructions.md
+          gh issue comment "$ISSUE_URL" --body-file instructions.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}

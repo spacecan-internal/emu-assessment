@@ -1,4 +1,6 @@
-REPOS=$(gh repo list $ORG_NAME --json name --jq '.[].name')
+#!/bin/bash
+
+REPOS=$(gh repo list "$ORG_NAME" --json name --jq '.[].name')
 
 echo "[]" > discussions.json
 
@@ -14,7 +16,7 @@ while read -r repo ; do
         }
       }' | REPO=$repo jq '[{ repo: env.REPO, discussions: .data.repository.discussions.totalCount }]'
     )
-    echo $DISCUSSIONS_RESULT > repo_discussions.json
+    echo "$DISCUSSIONS_RESULT" > repo_discussions.json
 
     cp discussions.json tmp.json
     jq -s add tmp.json repo_discussions.json > discussions.json
@@ -22,4 +24,4 @@ while read -r repo ; do
     rm -rf repo_discussions.json
     rm -rf tmp.json
 
-done <<< $REPOS
+done <<< "$REPOS"
