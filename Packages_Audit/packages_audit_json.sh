@@ -22,5 +22,3 @@ done
 cp packages.json tmp.json
 jq ' [{org: (.[0].org), packages: ([ .[].packages? | .[] | { type: .type, name: .name } ] ) } ]' tmp.json > packages.json
 rm -rf tmp.json
-
-gh issue comment $ISSUE_URL --body-file packages.json

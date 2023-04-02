@@ -20,7 +20,5 @@ done <<< $REPOS
 RESULT_PERMISSIONS=${RESULT_PERMISSIONS::-1} 
 RESULT_PERMISSIONS+=']'
 
-gh issue comment $ISSUE_URL --body "$RESULT_PERMISSIONS"
-
 echo $RESULT_PERMISSIONS > permissions.json
 

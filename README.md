@@ -32,7 +32,7 @@ According to the [official documentation](https://docs.github.com/en/early-acces
 You have to create a personnal access token with this scope:
 - `codespace:secrets`
 - `read:discussion`
-- `read:org`
+- `admin:org`
 - `read:packages`
 - `read:project`
 - `repo`

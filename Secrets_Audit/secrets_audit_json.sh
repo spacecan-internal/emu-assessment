@@ -88,6 +88,4 @@ unset -n secrettypes
 JSON_RESULT=${JSON_RESULT::-1} 
 JSON_RESULT+="]"
 
-gh issue comment $ISSUE_URL --body "$JSON_RESULT"
-
 echo $JSON_RESULT > secrets.json

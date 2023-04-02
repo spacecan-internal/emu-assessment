@@ -2,6 +2,4 @@ REPOS=$(gh api /orgs/$ORG_NAME/repos | jq -r '[ .[] | select(.visibility != "pri
 
 RESULT_VISIBILITY=$REPOS
 
-gh issue comment $ISSUE_URL --body "$RESULT_VISIBILITY"
-
 echo $RESULT_VISIBILITY > visibility.json

@@ -14,11 +14,23 @@ env:
 
 jobs:
   create-issue:
-    name: Create Audit Issue
+    name: Mange Audit Issue
     runs-on: ubuntu-latest
     outputs:
       ISSUE_URL: ${{ steps.create-issue.outputs.ISSUE_URL }}
     steps:
+      - name: Delete Previous Issue
+        run: |
+          SEARCH='"Assessment issue - '
+          SEARCH+=$ORG_NAME
+          SEARCH+='"'
+          ISSUES=$(gh issue list --search "$SEARCH" --json url --repo $REPO)
+          while read issueUrl; do
+            gh issue close $issueUrl
+          done <<< $(jq -c -r '.[].url' <<< $ISSUES)
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
       - name: Create Issue
         id: create-issue
         run: |
@@ -70,6 +82,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment
+        run: |
+          gh issue comment $ISSUE_URL --body-file secrets.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
           name: secrets
@@ -86,6 +104,12 @@ jobs:
           ./Apps_Audit/apps_audit_json.sh
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment
+        run: |
+          gh issue comment $ISSUE_URL --body-file apps.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
@@ -104,6 +128,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment
+        run: |
+          gh issue comment $ISSUE_URL --body-file permissions.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
           name: permissions
@@ -120,6 +150,12 @@ jobs:
           ./Visibility_Audit/visibility_audit_json.sh
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment
+        run: |
+          gh issue comment $ISSUE_URL --body-file visibility.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
@@ -138,6 +174,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment
+        run: |
+          gh issue comment $ISSUE_URL --body-file projects.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
           name: projects
@@ -154,6 +196,12 @@ jobs:
           ./Environments_Audit/environments_audit_json.sh
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment
+        run: |
+          gh issue comment $ISSUE_URL --body-file environments.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
@@ -172,6 +220,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment
+        run: |
+          gh issue comment $ISSUE_URL --body-file discussions.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
           name: discussions
@@ -189,6 +243,12 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment
+        run: |
+          gh issue comment $ISSUE_URL --body-file protections.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
           name: protections
@@ -205,6 +265,12 @@ jobs:
           ./Packages_Audit/packages_audit_json.sh
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment
+        run: |
+          gh issue comment $ISSUE_URL --body-file packages.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
@@ -253,6 +319,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment (JSON report)
+        run: |
+          gh issue comment $ISSUE_URL --body-file org.json
+          gh issue comment $ISSUE_URL --body-file repositories.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
       - uses: actions/upload-artifact@v3
         with:
           name: org
@@ -266,6 +339,24 @@ jobs:
           ./json-to-md.sh
         env:
           GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment (MD report)
+        run: |
+          gh issue comment $ISSUE_URL --body-file report.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Run script
+        run: |
+          ./json-to-md-summary.sh
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+      - name: Add comment (summary report)
+        run: |
+          gh issue edit $ISSUE_URL --body-file summary.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
 
 

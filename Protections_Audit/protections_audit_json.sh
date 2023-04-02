@@ -35,5 +35,3 @@ while read -r repo ; do
     rm -rf tmp.json
 
 done <<< $REPOS
-
-gh issue comment $ISSUE_URL --body-file protections.json
