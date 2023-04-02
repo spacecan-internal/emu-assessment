@@ -35,7 +35,7 @@ add_value $org_packages
 
 SUMMARY+=$'\n\n\n## Repositories \n\n'
 
-SUMMARY+=$'\n\n\n | Repo | Visibility | LFS | Permissions | Actions Secrets | Dependabot Secrets | Codespaces Secrets | Enviroments | Branch protection rules | Discussions | '
+SUMMARY+=$'\n\n\n | Repo | Visibility | LFS | Permissions | Actions Secrets | Dependabot Secrets | Codespaces Secrets | Environments | Branch protection rules | Discussions | '
 SUMMARY+=$' \n|---|---|---|---|---|---|---|---|---|---|  \n '
 
 while read repo; do

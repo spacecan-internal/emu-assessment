@@ -397,4 +397,11 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}  
-          ORG_NAME: ${{ inputs.ORG_NAME }}        
+          ORG_NAME: ${{ inputs.ORG_NAME }}   
+      - name: Add instruction
+        run: |
+          gh issue comment $ISSUE_URL --body-file instructions.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+          ORG_NAME: ${{ inputs.ORG_NAME }}     

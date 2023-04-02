@@ -39,4 +39,10 @@ You have to create a personnal access token with this scope:
 
 Then, you have to store the value in a GitHub Actions Secret called `PAT`. 
 
-Finally, you can manually trigger the workflow called `Migration assessment` and give the name of the org that you want to assess. 
+Finally, you can manually trigger:
+- the workflow called `Org Migration assessment` and give the name of the org that you want to assess
+- the workflow called `MultiOrg Migration assessment` and give a list of org names that you want to assess
+
+## Result
+
+The result will be available in a GitHub Issue with the name of the organization. You'll find a summary of the result in the body and then multiple comments with the json result per feature, for the global org features, for the global org respotiory features and at the end some explanations on how to manage it on the new GitHub enterprise account.
