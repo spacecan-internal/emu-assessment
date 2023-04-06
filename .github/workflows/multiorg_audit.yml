@@ -20,7 +20,7 @@ jobs:
       - name: Create Matrix
         id: create-matrix
         run: |
-          ORGS=$(echo -n "$org_names" | jq -cRs 'split(",")')
+          ORGS=$(echo -n "$org_names" | sed 's/ //g' | jq -cRs 'split(",")')
           echo "ORGS=$ORGS" >> "$GITHUB_OUTPUT"
         env:
           org_names: ${{ github.event.inputs.org_names }}
