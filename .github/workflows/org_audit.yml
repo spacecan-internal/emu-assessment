@@ -12,7 +12,7 @@ on:
       ORG_NAME:
         type: string
         required: true
-    
+
 env:
   PAT: ${{ secrets.PAT }}
 
@@ -65,7 +65,7 @@ jobs:
       - name: Create JSON
         id: lfs-output
         run: |
-          if [ -r ./LFS_Audit/repos_audited.txt ]; 
+          if [ -r ./LFS_Audit/repos_audited.txt ];
           then
             RESULT=$(jq --raw-input --slurp 'split("\n") | map(select(. != ""))' LFS_Audit/repos_audited.txt | jq '[ .[] | {"repo":., "lfs": true} ]')
           else
@@ -184,7 +184,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: visibility-${{ inputs.ORG_NAME }}
-          path: visibility.json  
+          path: visibility.json
   projects-audit:
     name: Projects Audit
     runs-on: ubuntu-latest
@@ -209,7 +209,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: projects-${{ inputs.ORG_NAME }}
-          path: projects.json  
+          path: projects.json
   environments-audit:
     name: Environments Audit
     runs-on: ubuntu-latest
@@ -234,7 +234,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: environments-${{ inputs.ORG_NAME }}
-          path: environments.json  
+          path: environments.json
   discussions-audit:
     name: Discussions Audit
     runs-on: ubuntu-latest
@@ -259,7 +259,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: discussions-${{ inputs.ORG_NAME }}
-          path: discussions.json  
+          path: discussions.json
   protections-audit:
     name: Protections Audit
     runs-on: ubuntu-latest
@@ -284,7 +284,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: protections-${{ inputs.ORG_NAME }}
-          path: protections.json    
+          path: protections.json
   packages-audit:
     name: Packages Audit
     runs-on: ubuntu-latest
@@ -309,7 +309,7 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: packages-${{ inputs.ORG_NAME }}
-          path: packages.json   
+          path: packages.json
   report:
     name: Report
     runs-on: ubuntu-latest
@@ -396,12 +396,16 @@ jobs:
           gh issue edit "$ISSUE_URL" --body-file summary.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}  
-          ORG_NAME: ${{ inputs.ORG_NAME }}   
+          ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+          ORG_NAME: ${{ inputs.ORG_NAME }}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: report-${{ inputs.ORG_NAME }}
+          path: summary.md
       - name: Add instruction
         run: |
           gh issue comment "$ISSUE_URL" --body-file instructions.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
-          ORG_NAME: ${{ inputs.ORG_NAME }}     
+          ORG_NAME: ${{ inputs.ORG_NAME }}
