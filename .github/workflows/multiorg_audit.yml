@@ -6,11 +6,8 @@ on:
       org_names:
         description: "Please provide an org names separated by ,"
         required: true
-        default: "sparlant-demo-org,sparlant-demo"
+        default: "SolidifyDemo"
     
-env:
-  PAT: ${{ secrets.PAT }}
-
 jobs:
   create-matrix:
     runs-on: ubuntu-latest

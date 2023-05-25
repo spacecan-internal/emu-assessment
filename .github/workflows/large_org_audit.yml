@@ -1,12 +1,12 @@
 name: Large Org Migration assessment
 
 on:
-  workflow_dispatch:
-    inputs:
-      ORG_NAME:
-        description: "Please provide an org name"
-        required: true
-        default: "sarlant-test-org"
+  # workflow_dispatch:
+  #   inputs:
+  #     ORG_NAME:
+  #       description: "Please provide an org name"
+  #       required: true
+  #       default: "SolidifyDemo"
   workflow_call:
     inputs:
       ORG_NAME:

@@ -38,8 +38,8 @@ declare -A secrettypes2=(
 )
 
 declare -n secrettypes
-
-REPOS=$(gh repo list --limit 500 "$ORG_NAME" --json name --jq '.[].name')
+tree
+REPOS=$(jq -r ".[].name" repos.json)
 
 JSON_RESULT="["
 
@@ -89,3 +89,4 @@ JSON_RESULT=${JSON_RESULT::-1}
 JSON_RESULT+="]"
 
 echo "$JSON_RESULT" > secrets.json
+echo secrets.json

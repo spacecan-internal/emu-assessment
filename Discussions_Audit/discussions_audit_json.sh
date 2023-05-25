@@ -1,7 +1,6 @@
 #!/bin/bash
 
-REPOS=$(gh repo list --limit 500 "$ORG_NAME" --json name --jq '.[].name')
-
+REPOS=$(jq -r ".[].name" repos.json)
 echo "[]" > discussions.json
 
 while read -r repo ; do
@@ -19,7 +18,7 @@ while read -r repo ; do
     echo "$DISCUSSIONS_RESULT" > repo_discussions.json
 
     cp discussions.json tmp.json
-    jq -s add tmp.json repo_discussions.json > discussions.json
+    jq -sc add tmp.json repo_discussions.json > discussions.json
 
     rm -rf repo_discussions.json
     rm -rf tmp.json

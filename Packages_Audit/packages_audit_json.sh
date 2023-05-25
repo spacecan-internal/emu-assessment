@@ -14,7 +14,7 @@ do
     echo "$PACKAGES_RESULT" > type_packages.json
 
     cp packages.json tmp.json
-    jq -s add tmp.json type_packages.json  > packages.json
+    jq -sc add tmp.json type_packages.json  > packages.json
 
     rm -rf type_packages.json
     rm -rf tmp.json

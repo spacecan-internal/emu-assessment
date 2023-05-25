@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-REPOS=$(gh repo list --limit 500 "$ORG_NAME" --json name --jq '.[].name')
+REPOS=$(jq -r ".[].name" repos.json)
 
 RESULT_PERMISSIONS='['
 
