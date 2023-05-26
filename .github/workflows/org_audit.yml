@@ -18,7 +18,7 @@ jobs:
     uses: ./.github/workflows/job_api_call.yml
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Data/repo-get-all.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/org_repos.sh
       ARTIFACT_TYPE: repos
       JOB_NAME: get-repos
     secrets: inherit
@@ -75,7 +75,7 @@ jobs:
     needs: [create-issue]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/apps.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/org_apps.sh
       ARTIFACT_TYPE: apps
       JOB_NAME: get-apps
     secrets: inherit
@@ -85,7 +85,7 @@ jobs:
     needs: [create-issue]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Org_Audit/hooks_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/org_webhooks.sh
       ARTIFACT_TYPE: orghooks
       JOB_NAME: get-orghooks
     secrets: inherit
@@ -95,7 +95,7 @@ jobs:
     needs: [create-issue, basic-data]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Permissions_Audit/permissions_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/repo_permissions.sh
       ARTIFACT_TYPE: permissions
       JOB_NAME: get-permissions
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
@@ -106,7 +106,7 @@ jobs:
     needs: [create-issue]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Projects_Audit/projects_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/repo_projects.sh
       ARTIFACT_TYPE: projects
       JOB_NAME: get-projects
     secrets: inherit
@@ -116,7 +116,7 @@ jobs:
     needs: [create-issue, basic-data]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Environments_Audit/environments_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/repo_environments.sh
       ARTIFACT_TYPE: environments
       JOB_NAME: get-environments
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
@@ -127,7 +127,7 @@ jobs:
     needs: [create-issue, basic-data]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Protections_Audit/protections_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/repo_branch_protections.sh
       ARTIFACT_TYPE: protections
       JOB_NAME: get-protections
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
@@ -138,7 +138,7 @@ jobs:
     needs: [create-issue, basic-data]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Repo_hooks/repo_hooks_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/repo_webhooks.sh
       ARTIFACT_TYPE: repoHooks
       JOB_NAME: get-repo-hooks
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
@@ -149,7 +149,7 @@ jobs:
     needs: [create-issue, basic-data]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Repo_Audit/repo_teams_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/repo_teams.sh
       ARTIFACT_TYPE: repoTeams
       JOB_NAME: get-repo-teams
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
@@ -160,7 +160,7 @@ jobs:
     needs: [create-issue, basic-data]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Repo_Audit/repo_users_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/repo_users.sh
       ARTIFACT_TYPE: repoUsers
       JOB_NAME: get-repo-teams
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
@@ -171,7 +171,7 @@ jobs:
     needs: [create-issue]
     with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Packages_Audit/packages_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/org_packages.sh
       ARTIFACT_TYPE: packages
       JOB_NAME: get-packages
     secrets: inherit
