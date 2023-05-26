@@ -7,7 +7,7 @@ on:
         description: "Please provide an org names separated by ,"
         required: true
         default: "SolidifyDemo"
-    
+
 jobs:
   create-matrix:
     runs-on: ubuntu-latest

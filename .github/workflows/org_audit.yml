@@ -22,64 +22,58 @@ jobs:
       ARTIFACT_TYPE: repos
       JOB_NAME: get-repos
     secrets: inherit
-                            
+
   create-issue:
     name: Manage Audit Issue
     runs-on: ubuntu-latest
+
     outputs:
       ISSUE_URL: ${{ steps.create-issue.outputs.ISSUE_URL }}
-    steps:
-      - name: Get Token
-        id: get_workflow_token
-        uses: peter-murray/workflow-application-token-action@v2
-        with:
-          application_id: ${{ secrets.APPLICATION_ID }}
-          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-          organization: ${{ inputs.ORG_NAME }}
 
-     
-      # - name: Delete Previous Issue
-      #   run: |
-      #     SEARCH='"Assessment issue - '
-      #     SEARCH+="$ORG_NAME"
-      #     SEARCH+='"'
-      #     ISSUES=$(gh issue list --search "$SEARCH" --json url --repo "$REPO")
-      #     while read -r issueUrl; do
-      #       if [ "$issueUrl" != "" ];
-      #       then
-      #         gh issue close "$issueUrl"
-      #       fi
-      #     done <<< $(jq -c -r '.[].url' <<< "$ISSUES")
-      #   env:
-      #     GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-      #     REPO: ${{ github.repository }}
-      #     ORG_NAME: ${{ inputs.ORG_NAME }}
-            
-      # - name: Create Issue
-      #   id: create-issue
-      #   run: |
-      #     ISSUE_URL=$(gh issue create --title "Assessment issue - $ORG_NAME" --body "" --repo $REPO)
-      #     echo "ISSUE_URL=$ISSUE_URL" >> "$GITHUB_OUTPUT"
-      #   env:
-      #     GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-      #     REPO: ${{ github.repository }}
-      #     ORG_NAME: ${{ inputs.ORG_NAME }}
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Delete Previous Issue
+        run: |
+          SEARCH='"Assessment issue - '
+          SEARCH+="$ORG_NAME"
+          SEARCH+='"'
+          ISSUES=$(gh issue list --search "$SEARCH" --json url --repo "$REPO")
+          while read -r issueUrl; do
+            if [ "$issueUrl" != "" ]; then
+              gh issue close "$issueUrl"
+            fi
+          done <<< $(jq -c -r '.[].url' <<< "$ISSUES")
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Issue
+        id: create-issue
+        run: |
+          ISSUE_URL=$(gh issue create --title "Assessment issue - ${{ inputs.ORG_NAME }}" --body "")
+          echo "ISSUE_URL=$ISSUE_URL" >> "$GITHUB_OUTPUT"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   secret-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue, basic-data]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Secrets_Audit/secrets_audit_json.sh
       ARTIFACT_TYPE: secrets
       JOB_NAME: get-secrets
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
     secrets: inherit
-  
+
   apps-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Apps_Audit/apps_audit_json.sh
       ARTIFACT_TYPE: apps
@@ -89,7 +83,7 @@ jobs:
   orghooks-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Org_Audit/hooks_audit_json.sh
       ARTIFACT_TYPE: orghooks
@@ -99,18 +93,18 @@ jobs:
   permissions-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue, basic-data]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Permissions_Audit/permissions_audit_json.sh
       ARTIFACT_TYPE: permissions
       JOB_NAME: get-permissions
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
     secrets: inherit
-  
+
   projects-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Projects_Audit/projects_audit_json.sh
       ARTIFACT_TYPE: projects
@@ -120,7 +114,7 @@ jobs:
   environments-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue, basic-data]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Environments_Audit/environments_audit_json.sh
       ARTIFACT_TYPE: environments
@@ -128,58 +122,54 @@ jobs:
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
     secrets: inherit
 
-
-
   protections-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue, basic-data]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Protections_Audit/protections_audit_json.sh
       ARTIFACT_TYPE: protections
       JOB_NAME: get-protections
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
     secrets: inherit
-        
-    
+
   repo-hooks-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue, basic-data]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Repo_hooks/repo_hooks_audit_json.sh
       ARTIFACT_TYPE: repoHooks
       JOB_NAME: get-repo-hooks
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
-    secrets: inherit  
+    secrets: inherit
 
   repo-teams-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue, basic-data]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Repo_Audit/repo_teams_audit_json.sh
       ARTIFACT_TYPE: repoTeams
       JOB_NAME: get-repo-teams
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
-    secrets: inherit 
+    secrets: inherit
 
   repo-users-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue, basic-data]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Repo_Audit/repo_users_audit_json.sh
       ARTIFACT_TYPE: repoUsers
       JOB_NAME: get-repo-teams
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
-    secrets: inherit 
-  
+    secrets: inherit
 
   packages-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue]
-    with: 
+    with:
       ORG_NAME: ${{ inputs.ORG_NAME }}
       SCRIPT_PATH: ${GITHUB_WORKSPACE}/Packages_Audit/packages_audit_json.sh
       ARTIFACT_TYPE: packages
@@ -187,108 +177,108 @@ jobs:
     secrets: inherit
 
   # report:
-    # name: Report
-    # runs-on: ubuntu-latest
-    # needs: [create-issue, lfs-audit, visibility-audit, permissions-audit, apps-audit, secrets-audit, projects-audit, environments-audit, discussions-audit, protections-audit, packages-audit]
-    # steps:
-      # - name: Get Token
-      # id: get_workflow_token
-      # uses: peter-murray/workflow-application-token-action@v2
-      # with:
-      #   application_id: ${{ secrets.APPLICATION_ID }}
-      #   application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
-      #   organization: ${{ inputs.ORG_NAME }}
-    #   - name: Checkout files
-    #     uses: actions/checkout@v3
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: lfs-${{ inputs.ORG_NAME }}
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: visibility-${{ inputs.ORG_NAME }}
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: permissions-${{ inputs.ORG_NAME }}
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: apps-${{ inputs.ORG_NAME }}
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: secrets-${{ inputs.ORG_NAME }}
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: projects-${{ inputs.ORG_NAME }}
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: environments-${{ inputs.ORG_NAME }}
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: protections-${{ inputs.ORG_NAME }}
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: discussions-${{ inputs.ORG_NAME }}
-    #   - uses: actions/download-artifact@v3
-    #     with:
-    #       name: packages-${{ inputs.ORG_NAME }}
-    #   - name: Run script
-    #     run: |
-    #       ./report.sh
-    #     env:
-    #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-    #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
-    #       ORG_NAME: ${{ inputs.ORG_NAME }}
-    #   # - name: Add comment (JSON report)
-    #   #   run: |
-    #   #     gh issue comment "$ISSUE_URL" --body-file org.json
-    #   #     gh issue comment "$ISSUE_URL" --body-file repositories.json
-    #   #   env:
-    #   #     GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-    #   #     ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
-    #   #     ORG_NAME: ${{ inputs.ORG_NAME }}r
-    #   - uses: actions/upload-artifact@v3
-    #     with:
-    #       name: org-${{ inputs.ORG_NAME }}
-    #       path: org.json
-    #   - uses: actions/upload-artifact@v3
-    #     with:
-    #       name: repositories-${{ inputs.ORG_NAME }}
-    #       path: repositories.json
-    #   - name: Run script
-    #     run: |
-    #       ./json-to-md.sh
-    #     env:
-    #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-    #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
-    #       ORG_NAME: ${{ inputs.ORG_NAME }}
-    #   - name: Add comment (MD report)
-    #     run: |
-    #       gh issue comment "$ISSUE_URL" --body-file report.md
-    #     env:
-    #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-    #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
-    #       ORG_NAME: ${{ inputs.ORG_NAME }}
-    #   - name: Run script
-    #     run: |
-    #       ./json-to-md-summary.sh
-    #     env:
-    #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-    #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
-    #       ORG_NAME: ${{ inputs.ORG_NAME }}
-    #   - name: Add comment (summary report)
-    #     run: |
-    #       gh issue edit "$ISSUE_URL" --body-file summary.md
-    #     env:
-    #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-    #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
-    #       ORG_NAME: ${{ inputs.ORG_NAME }}
-    #   - uses: actions/upload-artifact@v3
-    #     with:
-    #       name: report-${{ inputs.ORG_NAME }}
-    #       path: summary.md
-    #   - name: Add instruction
-    #     run: |
-    #       gh issue comment "$ISSUE_URL" --body-file instructions.md
-    #     env:
-    #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
-    #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
-    #       ORG_NAME: ${{ inputs.ORG_NAME }}
+  # name: Report
+  # runs-on: ubuntu-latest
+  # needs: [create-issue, lfs-audit, visibility-audit, permissions-audit, apps-audit, secrets-audit, projects-audit, environments-audit, discussions-audit, protections-audit, packages-audit]
+  # steps:
+  # - name: Get Token
+  # id: get_workflow_token
+  # uses: peter-murray/workflow-application-token-action@v2
+  # with:
+  #   application_id: ${{ secrets.APPLICATION_ID }}
+  #   application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+  #   organization: ${{ inputs.ORG_NAME }}
+  #   - name: Checkout files
+  #     uses: actions/checkout@v3
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: lfs-${{ inputs.ORG_NAME }}
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: visibility-${{ inputs.ORG_NAME }}
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: permissions-${{ inputs.ORG_NAME }}
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: apps-${{ inputs.ORG_NAME }}
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: secrets-${{ inputs.ORG_NAME }}
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: projects-${{ inputs.ORG_NAME }}
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: environments-${{ inputs.ORG_NAME }}
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: protections-${{ inputs.ORG_NAME }}
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: discussions-${{ inputs.ORG_NAME }}
+  #   - uses: actions/download-artifact@v3
+  #     with:
+  #       name: packages-${{ inputs.ORG_NAME }}
+  #   - name: Run script
+  #     run: |
+  #       ./report.sh
+  #     env:
+  #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+  #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+  #       ORG_NAME: ${{ inputs.ORG_NAME }}
+  #   # - name: Add comment (JSON report)
+  #   #   run: |
+  #   #     gh issue comment "$ISSUE_URL" --body-file org.json
+  #   #     gh issue comment "$ISSUE_URL" --body-file repositories.json
+  #   #   env:
+  #   #     GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+  #   #     ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+  #   #     ORG_NAME: ${{ inputs.ORG_NAME }}r
+  #   - uses: actions/upload-artifact@v3
+  #     with:
+  #       name: org-${{ inputs.ORG_NAME }}
+  #       path: org.json
+  #   - uses: actions/upload-artifact@v3
+  #     with:
+  #       name: repositories-${{ inputs.ORG_NAME }}
+  #       path: repositories.json
+  #   - name: Run script
+  #     run: |
+  #       ./json-to-md.sh
+  #     env:
+  #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+  #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+  #       ORG_NAME: ${{ inputs.ORG_NAME }}
+  #   - name: Add comment (MD report)
+  #     run: |
+  #       gh issue comment "$ISSUE_URL" --body-file report.md
+  #     env:
+  #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+  #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+  #       ORG_NAME: ${{ inputs.ORG_NAME }}
+  #   - name: Run script
+  #     run: |
+  #       ./json-to-md-summary.sh
+  #     env:
+  #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+  #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+  #       ORG_NAME: ${{ inputs.ORG_NAME }}
+  #   - name: Add comment (summary report)
+  #     run: |
+  #       gh issue edit "$ISSUE_URL" --body-file summary.md
+  #     env:
+  #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+  #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+  #       ORG_NAME: ${{ inputs.ORG_NAME }}
+  #   - uses: actions/upload-artifact@v3
+  #     with:
+  #       name: report-${{ inputs.ORG_NAME }}
+  #       path: summary.md
+  #   - name: Add instruction
+  #     run: |
+  #       gh issue comment "$ISSUE_URL" --body-file instructions.md
+  #     env:
+  #       GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+  #       ISSUE_URL: ${{needs.create-issue.outputs.ISSUE_URL}}
+  #       ORG_NAME: ${{ inputs.ORG_NAME }}
