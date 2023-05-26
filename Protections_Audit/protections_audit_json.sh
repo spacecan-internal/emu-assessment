@@ -59,7 +59,7 @@ while read -r repo ; do
             }
           }
         }
-      }' | REPO=$repo jq '[{ id: repo: env.REPO, branchProtectionRules: [ .data.repository.branchProtectionRules.nodes[] ] }]'
+      }' | REPO=$repo jq '[{ repo: env.REPO, branchProtectionRules: [ .data.repository.branchProtectionRules.nodes[] ] }]'
     )
 
     echo "$PROTECTIONS_RESULT" > repo_protections.json

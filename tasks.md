@@ -28,7 +28,7 @@ Create a script that will query a given GitHub Enterprise Cloud organization and
 - [x] List of webhooks ⭐
 - [x] List of GitHub Secrets (GitHub Actions, GitHub Codespaces, @dependabot) ⭐ 🛑
 - [x] List of GitHub Apps installed at the organization level ⭐
-- [ ] List of OAuth Apps installed at the organization level ⭐ 🛑
+- [-] List of OAuth Apps installed at the organization level ⭐ 🛑
 - [x] List of Projects (Classic) ⭐
 - [x] List of Projects (Next) ⭐
 - [x] List of GitHub Packages ⭐
@@ -39,17 +39,17 @@ Create a script that will query a given GitHub Enterprise Cloud organization and
 ​
 - [x] List of repositories' visibility ⭐ 🛑
 - [x] List of forked repositories ⭐
-- [ ] List of webhooks ⭐
+- [x] List of webhooks ⭐
 - [x] List of GitHub Secrets (GitHub Actions, GitHub Codespaces, @dependabot) ⭐ 🛑
 - [x] List of GitHub Actions environments (name, secrets, protection rules, ...) ⭐ 🛑
-- [ ] List of GitHub Apps installed at the repository level ⭐
+- [-] List of GitHub Apps installed at the repository level ⭐
 - [x] List of discussions ⭐
-- [ ] List of user access to the repositories (teams, direct users) ⭐
+- [x] List of user access to the repositories (teams, direct users) ⭐
 - [x] List of branch protection rules (branch name, required status checks, required pull request reviews, required linear history, required commit signatures, required commit message, restrictions, ...) ⭐
-- [ ] List of GitHub Packages ⭐
-- [ ] List of GitHub Actions used in the repository workflows 🛑 (optional)
-- [ ] List of GitHub Actions workflow runs (path, last executed times) 🛑
-- [ ] List of GitHub Actions workflows using `schedule` events (path, cron, last executed times) 🛑 (optional)
+- [?] List of GitHub Packages ⭐
+- [-] List of GitHub Actions used in the repository workflows 🛑 (optional)
+- [?] List of GitHub Actions workflow runs (path, last executed times) 🛑
+- [-] List of GitHub Actions workflows using `schedule` events (path, cron, last executed times) 🛑 (optional)
 - [x] List of LFS usage 🛑
 ```
 ​

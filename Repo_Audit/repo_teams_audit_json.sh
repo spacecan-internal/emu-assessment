@@ -1,18 +1,18 @@
 #!/bin/bash
-REPOS=$(jq -r ".[].name" repos.json)
 
-echo "[]" > repo_teams.json
+REPOS=$(jq -r ".[].name" repos.json)
+echo "[]" > repoTeams.json
 
 while read -r repo ; do
     echo "Auditing repository $repo ..."
 
-    ENV=$(gh api /repos/$ORG_NAME/$repo/teams | REPO=$repo jq '[ { repo: env.REPO, teams: [ .[] | { id: .id, name: .name }] } ] } ]')
-    echo "$ENV" > repo_team.json
+    REPOTEAMS_RESULT=$(gh api /repos/$ORG_NAME/$repo/teams | REPO=$repo jq '[{ repo: env.REPO, teams: [ { name: .[].name } ] }]')
+    echo "$REPOTEAMS_RESULT" > repo_teams.json
+    
+    cp repoTeams.json tmp.json
+    jq -sc add tmp.json repo_teams.json > repoTeams.json
 
-    cp teams.json tmp.json
-    jq -sc add tmp.json repo_team.json > teams.json
-
-    rm -rf repo_team.json
+    rm -rf repo_teams.json
     rm -rf tmp.json
 
 done <<< "$REPOS"

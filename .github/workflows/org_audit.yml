@@ -70,7 +70,7 @@ jobs:
     needs: [create-issue, basic-data]
     with: 
       ORG_NAME: ${{ inputs.ORG_NAME }}
-      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Secrets_Audit/secrets_audit_json.sh
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/repository/secrets_audit_json.sh
       ARTIFACT_TYPE: secrets
       JOB_NAME: get-secrets
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
@@ -152,6 +152,29 @@ jobs:
       JOB_NAME: get-repo-hooks
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
     secrets: inherit  
+
+  repo-teams-audit:
+    uses: ./.github/workflows/job_api_call.yml
+    needs: [create-issue, basic-data]
+    with: 
+      ORG_NAME: ${{ inputs.ORG_NAME }}
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Repo_Audit/repo_teams_audit_json.sh
+      ARTIFACT_TYPE: repoTeams
+      JOB_NAME: get-repo-teams
+      DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
+    secrets: inherit 
+
+  repo-users-audit:
+    uses: ./.github/workflows/job_api_call.yml
+    needs: [create-issue, basic-data]
+    with: 
+      ORG_NAME: ${{ inputs.ORG_NAME }}
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/Repo_Audit/repo_users_audit_json.sh
+      ARTIFACT_TYPE: repoUsers
+      JOB_NAME: get-repo-teams
+      DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
+    secrets: inherit 
+  
 
   packages-audit:
     uses: ./.github/workflows/job_api_call.yml
