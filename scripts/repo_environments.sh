@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -eo pipefail
+
 REPOS=$(jq -r ".[].name" repos.json)
 
 echo "[]" > environments.json

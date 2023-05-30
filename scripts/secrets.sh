@@ -1,4 +1,7 @@
+
 #!/bin/bash
+
+set -eo pipefail
 
 build_repo_secrets_list() {
   repo_name=$1

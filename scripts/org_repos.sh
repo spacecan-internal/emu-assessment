@@ -1,4 +1,7 @@
 #!/bin/bash
+
+set -eo pipefail
+
 echo 'starting...'
 REPOS=$(gh api graphql --paginate -H X-Github-Next-Global-ID:true -f query='query getRepoPlusPlus($endCursor: String = null) {
 	organization(login: "'$ORG_NAME'") {

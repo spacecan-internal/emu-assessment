@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -eo pipefail
 
 HOOKS=$(gh api -H X-Github-Next-Global-ID:true "/orgs/$ORG_NAME/hooks" | jq -rc ".[] | {id, name, active, type}" )
 

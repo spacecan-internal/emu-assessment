@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eo pipefail
+
 PROJECTS_V2_RESULT=$(gh api graphql --paginate -H X-Github-Next-Global-ID:true -f query='
   query getProjectsV2($endCursor: String = null){
     organization(login: "'$ORG_NAME'"){
