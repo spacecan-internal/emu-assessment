@@ -11,7 +11,7 @@ while read -r repo ; do
     PROTECTIONS_RESULT=$(gh api graphql -H X-Github-Next-Global-ID:true -f query='query {
 	      repository(owner: "'$ORG_NAME'", name: "'$repo'") {
           branchProtectionRules(first: 20) {
-            nodes {
+        nodes {
                 id
                 pattern
                 allowsDeletions
@@ -21,15 +21,26 @@ while read -r repo ; do
                 isAdminEnforced
                 lockAllowsFetchAndMerge
                 lockBranch
+                creator { login }                 
                 requireLastPushApproval
                 requiredApprovingReviewCount
                 requiresApprovingReviews
                 requiredDeploymentEnvironments
                 requiredStatusCheckContexts
                 requiresApprovingReviews
+                requiresCodeOwnerReviews
+                requiresCommitSignatures
+                requiresConversationResolution
+                requiresDeployments
+                requiresLinearHistory
+                requiresStatusChecks
+                restrictsPushes
+                restrictsReviewDismissals
+
                 lockBranch
                 restrictsPushes
-                allowsForcePushes
+                
+
                 requiredStatusChecks {
                     app { name } 
                     context 
@@ -40,7 +51,7 @@ while read -r repo ; do
                         }
                     }
                 }
-                bypassPullRequestAllowances(first: 10) {
+                bypassPullRequestAllowances(first: 50) {
                     nodes {
                         actor {
                             ... on User {
