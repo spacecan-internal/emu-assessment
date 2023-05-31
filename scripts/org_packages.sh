@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-TYPES=(npm maven rubygems docker nuget container)
+TYPES=(npm maven rubygems docker nuget)
 
 echo "[]" > packages.json
 
