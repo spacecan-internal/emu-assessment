@@ -37,27 +37,27 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Delete Previous Issue
-        run: |
-          SEARCH='"Assessment issue - '
-          SEARCH+="$ORG_NAME"
-          SEARCH+='"'
-          ISSUES=$(gh issue list --search "$SEARCH" --json url)
-          while read -r issueUrl; do
-            if [ "$issueUrl" != "" ]; then
-              gh issue close "$issueUrl"
-            fi
-          done <<< $(jq -c -r '.[].url' <<< "$ISSUES")
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Delete Previous Issue
+      #   run: |
+      #     SEARCH='"Assessment issue - '
+      #     SEARCH+="$ORG_NAME"
+      #     SEARCH+='"'
+      #     ISSUES=$(gh issue list --search "$SEARCH" --json url)
+      #     while read -r issueUrl; do
+      #       if [ "$issueUrl" != "" ]; then
+      #         gh issue close "$issueUrl"
+      #       fi
+      #     done <<< $(jq -c -r '.[].url' <<< "$ISSUES")
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create Issue
-        id: create-issue
-        run: |
-          ISSUE_URL=$(gh issue create --title "Assessment issue - ${{ inputs.ORG_NAME }}" --body "")
-          echo "ISSUE_URL=$ISSUE_URL" >> "$GITHUB_OUTPUT"
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # - name: Create Issue
+      #   id: create-issue
+      #   run: |
+      #     ISSUE_URL=$(gh issue create --title "Assessment issue - ${{ inputs.ORG_NAME }}" --body "")
+      #     echo "ISSUE_URL=$ISSUE_URL" >> "$GITHUB_OUTPUT"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   secret-audit:
     uses: ./.github/workflows/job_api_call.yml
