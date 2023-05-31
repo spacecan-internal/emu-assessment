@@ -7,12 +7,19 @@ echo "[]" > discussions.json
 
 while read -r repo ; do
     echo "Auditing repository $repo ..."
-
-    DISCUSSIONS_RESULT=$(gh api graphql -f -H X-Github-Next-Global-ID:true query='
-      query{
+    DISCUSSIONS_RESULT=$(gh api graphql --paginate -H X-Github-Next-Global-ID:true -f query='
+      query getRepoDiscussions($endCursor: String = null){
         repository(owner: "'$ORG_NAME'", name: "'$repo'"){
-          discussions(first: 1) {
+           discussions(first: 100, after: $endCursor) {
             totalCount
+            nodes {
+                id
+            }
+            pageInfo {
+                hasNextPage
+                endCursor
+          }
+
           }
         }
       }' | REPO=$repo jq '[{ repo: env.REPO, discussions: .data.repository.discussions.totalCount }]'

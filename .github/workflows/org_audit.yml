@@ -101,6 +101,17 @@ jobs:
       DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
     secrets: inherit
 
+  discussions-audit:
+    uses: ./.github/workflows/job_api_call.yml
+    needs: [create-issue, basic-data]
+    with:
+      ORG_NAME: ${{ inputs.ORG_NAME }}
+      SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/repo_discussions.sh
+      ARTIFACT_TYPE: discussions
+      JOB_NAME: get-discussions
+      DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
+    secrets: inherit
+
   projects-audit:
     uses: ./.github/workflows/job_api_call.yml
     needs: [create-issue]
