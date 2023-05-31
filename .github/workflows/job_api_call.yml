@@ -51,5 +51,5 @@ jobs:
       - uses: actions/upload-artifact@v3
         with:
           name: ${{inputs.ARTIFACT_TYPE}}-${{ inputs.ORG_NAME }}
-          path: ${{inputs.ARTIFACT_TYPE}}.json
+          path: ${{inputs.ARTIFACT_TYPE}}*.json
           retention-days: 1
