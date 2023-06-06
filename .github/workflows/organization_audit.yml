@@ -1,0 +1,547 @@
+name: Org Migration assessment with Composite Actions
+
+on:
+  workflow_dispatch:
+    inputs:
+      ORG_NAME:
+        description: "Please provide an org name"
+        required: true
+        default: "SolidifyDemo"
+  workflow_call:
+    inputs:
+      ORG_NAME:
+        type: string
+        required: true
+
+jobs:
+  repos-audit:
+    runs-on: ubuntu-latest
+    env:
+      ARTIFACT: repos
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/repositories"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  create-issue:
+    name: Manage Audit Issue
+    runs-on: ubuntu-latest
+
+    outputs:
+      ISSUE_URL: ${{ steps.create-issue.outputs.ISSUE_URL }}
+
+    permissions:
+      contents: read
+      issues: write
+
+    steps:
+      - uses: actions/checkout@v3
+
+      # - name: Delete Previous Issue
+      #   run: |
+      #     SEARCH='"Assessment issue - '
+      #     SEARCH+="$ORG_NAME"
+      #     SEARCH+='"'
+      #     ISSUES=$(gh issue list --search "$SEARCH" --json url)
+      #     while read -r issueUrl; do
+      #       if [ "$issueUrl" != "" ]; then
+      #         gh issue close "$issueUrl"
+      #       fi
+      #     done <<< $(jq -c -r '.[].url' <<< "$ISSUES")
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # - name: Create Issue
+      #   id: create-issue
+      #   run: |
+      #     ISSUE_URL=$(gh issue create --title "Assessment issue - ${{ inputs.ORG_NAME }}" --body "")
+      #     echo "ISSUE_URL=$ISSUE_URL" >> "$GITHUB_OUTPUT"
+      #   env:
+      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # secret-audit:
+  #   uses: ./.github/workflows/job_api_call.yml
+  #   needs: [create-issue, basic-data]
+  #   with:
+  #     ORG_NAME: ${{ inputs.ORG_NAME }}
+  #     SCRIPT_PATH: ${GITHUB_WORKSPACE}/scripts/secrets.sh
+  #     ARTIFACT_TYPE: secrets
+  #     JOB_NAME: get-secrets
+  #     DOWNLOAD_ARTIFACT_NAME: repos-${{ inputs.ORG_NAME }}
+  #   secrets: inherit
+
+  apps-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue]
+    env:
+      ARTIFACT: apps
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/apps"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  packages-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue]
+    env:
+      ARTIFACT: packages
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/packages"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  projects-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue]
+    env:
+      ARTIFACT: projects
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/projects"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  orgwebhooks-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue]
+    env:
+      ARTIFACT: orgwebhooks
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/orgwebhooks"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  actions-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue]
+    env:
+      ARTIFACT: actions
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/actions"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  actions-history-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue, repos-audit]
+    env:
+      ARTIFACT: actions-history
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: repos-${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: './organization/actions-history'
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  permissions-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue, repos-audit]
+    env:
+      ARTIFACT: permissions
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: repos-${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/permissions"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  branch-protection-rules-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue, repos-audit]
+    env:
+      ARTIFACT: branch-protection-rules
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: repos-${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: './organization/branch-protection-rules'
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  discussions-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue, repos-audit]
+    env:
+      ARTIFACT: discussions
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: repos-${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/discussions"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  environments-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue, repos-audit]
+    env:
+      ARTIFACT: environments
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: repos-${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: './organization/environments'
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  teams-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue, repos-audit]
+    env:
+      ARTIFACT: teams
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: repos-${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/teams"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  users-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue, repos-audit]
+    env:
+      ARTIFACT: users
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: repos-${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/users"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  webhooks-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue, repos-audit]
+    env:
+      ARTIFACT: webhooks
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: repos-${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/webhooks"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
+
+  secrets-audit:
+    runs-on: ubuntu-latest
+    needs: [create-issue, repos-audit]
+    env:
+      ARTIFACT: secrets
+    steps:
+      - name: Checkout files
+        uses: actions/checkout@v3
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@v2
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ inputs.ORG_NAME }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: repos-${{ inputs.ORG_NAME }}
+
+      - name: Call local composite action
+        uses: "./organization/secrets"
+        with:
+          org: ${{ inputs.ORG_NAME }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ${{env.ARTIFACT}}-${{ inputs.ORG_NAME }}
+          path: ${{env.ARTIFACT}}*.json
+          retention-days: 1
