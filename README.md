@@ -1,44 +1,56 @@
-# EMU Assessment
+# GHEC Migration Audit
 
-GitHub Action to audit an organization before running `gh gei`.
+This README provides instructions on how audit organizations and repositories for migration with GEI, in order to assess the data not migrated. The output of this audit is a series of json files with all the data point that you would need to apply post migration. The data points are: 
+- Organization
+  - actions
+  - GitHub Apps
+  - packages (npm, maven, rubygems, docker, nuget)
+  - projects
+  - repositories
+  - secrets (organization, repository, action, dependabot, codespaces)
+  - webhooks
+- Repository
+  - branch protection rules
+  - discussions
+  - environments and secrets
+  - permissions
+  - teams
+  - users
+  - webhooks
 
-## Scope
+For more information regarding which data is or is not migrated, see [GitHub.com migration support](https://docs.github.com/en/migrations/using-github-enterprise-importer/understanding-github-enterprise-importer/migration-support-for-github-enterprise-importer#githubcom-migration-support). 
 
-According to the [official documentation](https://docs.github.com/en/early-access/enterprise-importer/understanding-github-enterprise-importer/migration-support-for-github-enterprise-importer#githubcom-migration-support) here are the not supported data that are covered by this assessment:
+This repository consist of all the relevant bash scripts, packaged as composite action for each data point and an example workflow optimized for scale on how to consume these
 
-- [x] Git LFS objects and large binaries
-- [x] GitHub secrets
-  - [x] Organization
-    - [x] Dependabot
-    - [x] Codespaces
-    - [x] Actions
-  - [x] Repository
-    - [x] Dependabot
-    - [x] Codespaces
-    - [x] Actions
-- [x] GitHub Actions Environments
-- [x] Webhooks
-- [x] Forked repositories
-- [x] Environments
-- [x] Projects (classic) at the organization level
-- [x] Any Projects (the new projects experience)
-- [x] Discussions at the repository level
-- [x] Packages in GitHub Packages
-- [x] GitHub Apps
-- [x] User access to the repository
-- [x] Repository visibility  
-- [x] branch protection rules
 
-## How to use it?
 
-TODO: describe how to use the GitHub app 'emu-assessment'
+## Prerequisites
+- Organization owner in order to create and install the GitHub app.
+- GitHub App with bare minimum permissions. 
 
-Then, you have to store the application ID and private key in a GitHub Actions Secret called APPLICATION_ID and APPLICATION_PRIVATE_KEY  
+## Getting started
 
-Finally, you can manually trigger:
-- the workflow called `Organization assessment` and give the name of the org that you want to assess
-- the workflow called `Multi organization assessment` and give a list of organization names that you want to assess
+1. Create a GitHub app and assign the following permission: 
+	  
+	  **Read access:**
+	
+	> Dependabot alerts, actions, actions variables, administration, checks, code, codespaces, codespaces lifecycle admin, codespaces metadata, commit statuses, custom repository roles, dependabot secrets, deployments, discussions, environments, issues, members, merge queues, metadata, organization actions variables, organization administration, organization codespaces, organization codespaces secrets, organization codespaces settings, organization dependabot secrets, organization hooks, organization personal access token requests, organization personal access tokens, organization plan, organization projects, organization secrets, organization self hosted runners, packages, pages, pull requests, repository advisories, repository hooks, repository projects, secret scanning alerts, secrets, security events, and team discussions
+	  
+	  **Read and write access:**
+	 
+	> codespaces secrets and workflows
+
+
+2. Copy the Application ID and private key and create 2 organization secrets called APPLICATION_ID and APPLICATION_PRIVATE_KEY and assign the values.
+
+
+3. Install the GitHub App into the organizations needed to be audited. Select either relevant or all repositories. 
+
+
+4. Trigger the sample workflow `GHEC EMU Migration Audit` with one or more organization names as input parameter.
+	
+
 
 ## Result
+The result from running the composite actions, will be a series of artifacts for each organization and repository data point containing one or more json files.  
 
-The result will be available in a GitHub Issue with the name of the organization. You'll find a summary of the result in the body and then multiple comments with the json result per feature, for the global org features, for the global org respotiory features and at the end some explanations on how to manage it on the new GitHub enterprise account.
