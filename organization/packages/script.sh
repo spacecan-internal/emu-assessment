@@ -14,8 +14,6 @@ do
 	type="$i"
     echo "Auditing type $type ..."
 
-    gh api --paginate -H X-Github-Next-Global-ID:true "/orgs/${1}/packages?package_type=$type"
-
     PACKAGES_RESULT=$(gh api --paginate -H X-Github-Next-Global-ID:true "/orgs/${1}/packages?package_type=$type" | TYPE=$type ORG_NAME=${1} jq '[{ org: env.ORG_NAME, packages: [ { type: env.TYPE, name: .[].name } ] }]')
 
     echo "$PACKAGES_RESULT" > type_packages.json
