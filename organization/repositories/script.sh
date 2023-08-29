@@ -10,7 +10,7 @@ gh api graphql --paginate \
   -F login="${1}" \
   -f query='query getRepoPlusPlus($login: String!, $endCursor: String = null) {
   organization(login: $login) {
-    repositories(first: 100, after: $endCursor) {
+    repositories(first: 50, after: $endCursor) {
       totalCount
       nodes {
         name
