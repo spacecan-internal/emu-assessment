@@ -1,4 +1,4 @@
-name: GHEC EMU Migration Audit
+name: GHEC EMU Migration Audit by Organization
 
 on:
   workflow_dispatch:
@@ -6,10 +6,6 @@ on:
       org_names:
         description: "Please provide comma separated list of organization names"
         required: true
-      repo_file_path:
-        description: "Please provide path to the file with repository names relative to repository root path. "
-        required: true
-        default: "reports/repos.json"
 
 jobs:
   get-orgs:
@@ -78,13 +74,13 @@ jobs:
       matrix:
         org: ${{ fromJson(needs.get-orgs.outputs.orgs) }}
         composite-action:
-          - repository/actions
           - organization/actions
           - organization/apps
           - organization/packages
           - organization/projects
           - organization/secrets
           - organization/webhooks
+          - repository/actions
           - repository/branch-protection-rules
           - repository/discussions
           - repository/environments
@@ -121,7 +117,7 @@ jobs:
         if: ${{ matrix.composite-action == 'organization/actions' }}
 
       - name: Run ${{ matrix.composite-action }} on ${{ matrix.org }}
-        run: ./script.sh ${{ matrix.org }} ${{ github.workspace }}/${{ inputs.repo_file_path }}
+        run: ./script.sh ${{ matrix.org }} ${{ github.workspace }}/reports/repos.json
         shell: bash
         working-directory: ${{ matrix.composite-action }}
         env:

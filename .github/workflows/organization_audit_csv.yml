@@ -1,0 +1,111 @@
+name: GHEC EMU Migration Audit by CSV
+
+on:
+  workflow_dispatch:
+    inputs:
+      org_name:
+        description: "Please provide an organization name"
+        required: true
+      repo_names:
+        description: "Please provide a comma seperated list of repository names"
+        required: true
+
+jobs:
+  repository-audit:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@8e1ba3bf1619726336414f1014e37f17fbadf1db
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ github.event.inputs.org_name }}
+
+      - name: Run repository-audit on ${{ github.event.inputs.org_name }}
+        uses: ./repository/repository
+        id: repositories
+        with:
+          org: ${{ github.event.inputs.org_name }}
+          repos: "${{ github.event.inputs.repo_names }}"
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - name: Upload ${{ github.event.inputs.org_name }} results
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          name: ${{ github.event.inputs.org_name }}-repositories
+          path: reports/
+          retention-days: 1
+
+  audit:
+    runs-on: ubuntu-latest
+
+    needs:
+      - repository-audit
+
+    continue-on-error: true
+
+    strategy:
+      fail-fast: false
+      matrix:
+        composite-action:
+          - organization/actions
+          - organization/apps
+          - organization/packages
+          - organization/projects
+          - organization/secrets
+          - organization/webhooks
+          - repository/actions
+          - repository/branch-protection-rules
+          - repository/discussions
+          - repository/environments
+          - repository/permissions
+          - repository/teams
+          - repository/users
+          - repository/webhooks
+          - repository/actions-history
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Download ${{ github.event.inputs.org_name }} repository-audit results
+        uses: actions/download-artifact@9bc31d5ccc31df68ecc42ccf4149144866c47d8a
+        with:
+          name: ${{ github.event.inputs.org_name }}-repositories
+          path: reports
+
+      - name: Get Token
+        id: get_workflow_token
+        uses: peter-murray/workflow-application-token-action@8e1ba3bf1619726336414f1014e37f17fbadf1db
+        with:
+          application_id: ${{ secrets.APPLICATION_ID }}
+          application_private_key: ${{ secrets.APPLICATION_PRIVATE_KEY }}
+          organization: ${{ github.event.inputs.org_name }}
+
+      - name: Setup Node
+        uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
+        with:
+          node-version: 18
+        if: ${{ matrix.composite-action == 'organization/actions' }}
+
+      - name: Run ${{ matrix.composite-action }} on ${{ github.event.inputs.org_name }}
+        run: ./script.sh ${{ github.event.inputs.org_name }} "${{ github.workspace }}/reports/repos.json"
+        shell: bash
+        working-directory: ${{ matrix.composite-action }}
+        env:
+          GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
+
+      - name: Upload ${{ matrix.composite-action }} results
+        uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
+        with:
+          name: ${{ github.event.inputs.org_name }}-reports
+          path: reports/
+          retention-days: 1
