@@ -1,9 +1,9 @@
-name: "Organization GitHub Packages"
-description: "Get Organization GitHub Packages"
+name: 'Repository GitHub Projects'
+description: 'Get Repositories GitHub Projects'
 
 inputs:
   org:
-    description: "Organization name"
+    description: 'Organization name'
     required: true
   repos:
     description: "Path to file containing list of repositories"
@@ -14,4 +14,4 @@ runs:
   steps:
     - run: ./script.sh ${{ inputs.org }} ${{ inputs.repos }}
       shell: bash
-      working-directory: ./organization/packages
+      working-directory: ./repository/projects
