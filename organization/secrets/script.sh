@@ -1,24 +1,19 @@
-
 #!/bin/bash
 
 set -eo pipefail
 
 build_repo_secrets_list() {
-  repo_name=$1
-  secret_type=$2
-
-  REPO_SECRETS=$(gh secret list --app $secret_type --repo $repo_name)
-
-  echo "$REPO_SECRETS"
+    repo_name=$1
+    secret_type=$2
+    REPO_SECRETS=$(gh secret list --app $secret_type --repo $repo_name)
+    echo "$REPO_SECRETS"
 }
 
 build_org_secrets_list() {
-  org_name=$1
-  secret_type=$2
-
-  ORG_SECRETS=$(gh secret list --app $secret_type --org ${1})
-
-  echo "$ORG_SECRETS"
+    org_name=$1
+    secret_type=$2
+    ORG_SECRETS=$(gh secret list --app $secret_type --org ${1})
+    echo "$ORG_SECRETS"
 }
 
 declare -A secrettypes0=(
@@ -27,12 +22,14 @@ declare -A secrettypes0=(
     [repo_results]=''
     [org_results]=''
 )
+
 declare -A secrettypes1=(
     [name]='Dependabot Secrets'
     [type]='dependabot'
     [repo_results]=''
     [org_results]=''
 )
+
 declare -A secrettypes2=(
     [name]='Codespaces Secrets'
     [type]='codespaces'
@@ -45,7 +42,7 @@ declare -n secrettypes
 # create ../../reports if it doesn't exist
 mkdir -p ../../reports
 
-REPOS=$(jq -r ".[].name" ../../reports/repos.json)
+REPOS=$(jq -r ".[].name" "${2}")
 
 JSON_RESULT="["
 
@@ -58,7 +55,7 @@ for secrettypes in ${!secrettypes@}; do
     JSON_RESULT+='",'
     JSON_RESULT+='"repos":['
 
-    while read -r repo ; do
+    while read -r repo; do
         echo "Auditing repository $repo ..."
 
         JSON_RESULT+='{ "repo":"'
@@ -73,7 +70,7 @@ for secrettypes in ${!secrettypes@}; do
             JSON_RESULT+="$REPO_JSON_RESULT"
         fi
         JSON_RESULT+='},'
-    done <<< "$REPOS"
+    done <<<"$REPOS"
 
     JSON_RESULT=${JSON_RESULT::-1}
     JSON_RESULT+='],"org":{'
@@ -90,9 +87,9 @@ for secrettypes in ${!secrettypes@}; do
 done
 unset -n secrettypes
 
-JSON_RESULT=${JSON_RESULT::-1}
+JSON_RESULT="${JSON_RESULT%?}"
 JSON_RESULT+="]"
 
-echo "$JSON_RESULT" > secrets_bloated.json
-jq -r tostring secrets_bloated.json > ../../reports/secrets.json
+echo "$JSON_RESULT" >secrets_bloated.json
+jq -r tostring secrets_bloated.json >../../reports/secrets.json
 rm secrets_bloated.json
