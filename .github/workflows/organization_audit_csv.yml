@@ -54,21 +54,23 @@ jobs:
       fail-fast: false
       matrix:
         composite-action:
-          - organization/actions
-          - organization/apps
-          - organization/packages
-          - organization/projects
-          - organization/secrets
-          - organization/webhooks
           - repository/actions
+          - repository/actions-history
           - repository/branch-protection-rules
           - repository/discussions
           - repository/environments
           - repository/permissions
+          - repository/projects
           - repository/teams
           - repository/users
           - repository/webhooks
-          - repository/actions-history
+          #- organization/actions
+          - organization/apps
+          - organization/packages
+          # - organization/projects
+          - organization/secrets
+          - organization/webhooks
+
 
     steps:
       - name: Checkout
