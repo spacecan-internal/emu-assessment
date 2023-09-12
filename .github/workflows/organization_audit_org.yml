@@ -74,22 +74,36 @@ jobs:
       matrix:
         org: ${{ fromJson(needs.get-orgs.outputs.orgs) }}
         composite-action:
-          - repository/actions
-          - repository/actions-history
-          - repository/branch-protection-rules
-          - repository/discussions
-          - repository/environments
-          - repository/permissions
-          - repository/projects
-          - repository/teams
-          - repository/users
-          - repository/webhooks
+          - action: repository/actions
+            auth: githubapp
+          - action: repository/actions-history
+            auth: githubapp
+          - action: repository/branch-protection-rules
+            auth: githubapp
+          - action: repository/discussions
+            auth: githubapp
+          - action: repository/environments
+            auth: githubapp
+          - action: repository/permissions
+            auth: githubapp
+          - action: repository/projects
+            auth: githubapp
+          - action: repository/teams
+            auth: githubapp
+          - action: repository/users
+            auth: githubapp
+          - action: repository/webhooks
+            auth: githubapp
           #- organization/actions
-          - organization/apps
-          - organization/packages
+          - action: organization/apps
+            auth: githubapp
+          - action: organization/packages
+            auth: pat
           # - organization/projects
-          - organization/secrets
-          - organization/webhooks
+          - action: organization/secrets
+            auth: githubapp
+          - action: organization/webhooks
+            auth: githubapp
 
 
 
@@ -107,6 +121,7 @@ jobs:
 
       - name: Get Token
         id: get_workflow_token
+        if: ${{ matrix.composite-action.auth == 'githubapp' }}
         uses: peter-murray/workflow-application-token-action@8e1ba3bf1619726336414f1014e37f17fbadf1db
         with:
           application_id: ${{ secrets.APPLICATION_ID }}
@@ -117,16 +132,25 @@ jobs:
         uses: actions/setup-node@64ed1c7eab4cce3362f8c340dee64e5eaeef8f7c
         with:
           node-version: 18
-        if: ${{ matrix.composite-action == 'organization/actions' }}
+        if: ${{ matrix.composite-action.action == 'organization/actions' }}
 
-      - name: Run ${{ matrix.composite-action }} on ${{ matrix.org }}
+      - name: Run ${{ matrix.composite-action.action }} on ${{ matrix.org }}
+        if: ${{ matrix.composite-action.auth == 'githubapp' }}
         run: ./script.sh ${{ matrix.org }} ${{ github.workspace }}/reports/repos.json
         shell: bash
-        working-directory: ${{ matrix.composite-action }}
+        working-directory: ${{ matrix.composite-action.action }}
         env:
           GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
 
-      - name: Upload ${{ matrix.composite-action }} results
+      - name: Run ${{ matrix.composite-action.action }} on ${{ matrix.org }}
+        if: ${{ matrix.composite-action.auth == 'pat' }}
+        run: ./script.sh ${{ matrix.org }} ${{ github.workspace }}/reports/repos.json
+        shell: bash
+        working-directory: ${{ matrix.composite-action.action }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+      - name: Upload ${{ matrix.composite-action.action }} results
         uses: actions/upload-artifact@0b7f8abb1508181956e8e162db84b466c27e18ce
         with:
           name: ${{ matrix.org }}-reports
