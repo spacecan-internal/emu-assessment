@@ -121,9 +121,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ steps.get_workflow_token.outputs.token }}
 
-      - name: Run ${{ matrix.composite-action.action }} on ${{ matrix.org }}
+      - name: Run ${{ matrix.composite-action.action }} on ${{ github.event.inputs.org_name }}
         if: ${{ matrix.composite-action.auth == 'pat' }}
-        run: ./script.sh ${{ matrix.org }} ${{ github.workspace }}/reports/repos.json
+        run: ./script.sh ${{ github.event.inputs.org_name }} "${{ github.workspace }}/reports/repos.json"
         shell: bash
         working-directory: ${{ matrix.composite-action.action }}
         env:
