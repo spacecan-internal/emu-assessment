@@ -158,10 +158,12 @@ jobs:
           action_name=$(basename ${{ matrix.composite-action.action }})
           echo "action_name=$action_name" >> $GITHUB_ENV
           echo "Action name: $action_name"
+          echo "formatted_date=$(date +'%Y-%m-%d')" >> $GITHUB_ENV
+          echo "Formatted date: $(date +'%Y-%m-%d')"
 
       - name: Upload ${{ matrix.composite-action.action }} results
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ matrix.org }}-${{ env.action_name }}-reports-$(date +'%Y-%m-%d')
+          name: ${{ matrix.org }}-${{ env.action_name }}-reports-${{ env.formatted_date}}
           path: reports/
           retention-days: 1
