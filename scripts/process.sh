@@ -9,7 +9,7 @@ done
 
 # Initialize the combined markdown file
 echo "# Combined Report" > combined_report.md
-echo -e "\n## Index\n" >> combined_report.md
+printf "\n## Index\n" >> combined_report.md
 
 # Create an index for the first two headings in each markdown file
 for file in *.md; do
@@ -22,12 +22,12 @@ for file in *.md; do
     fi
 done
 
-echo -e "\n## Content\n" >> combined_report.md
+printf "\n## Content\n" >> combined_report.md
 
 # Combine all the markdown files into a single markdown file
 for file in *.md; do
     if [ "${file}" != "combined_report.md" ]; then
-        echo -e "\n### ${file}\n" >> combined_report.md
+        printf "\n### ${file}\n" >> combined_report.md
         cat "${file}" >> combined_report.md
     fi
 done

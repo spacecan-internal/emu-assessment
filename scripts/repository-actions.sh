@@ -12,4 +12,4 @@ for uses in ${unique_uses}; do
 done
 
 # Write the markdown data into a file
-echo -e "${markdown_data}" > repository-actions.md
+printf "${markdown_data}" > repository-actions.md

@@ -13,4 +13,4 @@ for repo in $(echo "${filtered_data}" | jq -r '.repo'); do
 done
 
 # Write the markdown report into a file
-echo -e "${markdown_report}" > ruleset.md
+printf "${markdown_report}" > ruleset.md
