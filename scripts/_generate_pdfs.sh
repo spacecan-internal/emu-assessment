@@ -55,6 +55,6 @@ install_brew_package "weasyprint"
 # Loop through all .md files and create an empty .pdf file with the same name
 for md_file in *.md; do
   pdf_file="${md_file%.md}.pdf"
-  pandoc --pdf-engine weasyprint "${md_file}" --o "${pdf_file}"
+  pandoc --pdf-engine weasyprint "${md_file}" --o "${pdf_file}" 2>/dev/null
   echo "Created ${pdf_file}"
 done
