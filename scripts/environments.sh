@@ -4,15 +4,16 @@
 data=$(jq '.' environments.json)
 
 # Initialize markdown data
-markdown_data="# Repo Environments and Protection Rules\n\n"
+markdown_data=""
+printf -v markdown_data "# Repo Environments and Protection Rules\n\n"
 
 # Loop through the data and format it into markdown
 for repo in $(echo "${data}" | jq -r '.[] | select(.env != []) | .repo'); do
-  markdown_data+="## ${repo}\n\n"
+  printf -v markdown_data "%s## %s\n\n" "$markdown_data" "$repo"
   envs=$(echo "${data}" | jq -r ".[] | select(.repo == \"${repo}\") | .env[]")
   for env in $(echo "${envs}" | jq -r '.name'); do
     num_rules=$(echo "${envs}" | jq -r "select(.name == \"${env}\") | .protectionrules | length")
-    markdown_data+="### ${env}\n\nNumber of protection rules: ${num_rules}\n\n"
+    printf -v markdown_data "%s### %s\n\nNumber of protection rules: %s\n\n" "$markdown_data" "$env" "$num_rules"
   done
 done
 
