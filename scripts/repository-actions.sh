@@ -33,21 +33,21 @@ for uses in ${unique_uses}; do
 done
 
 if [[ ${#local_actions[@]} -gt 0 ]]; then
-  printf -v markdown_data "%s\n## Local Actions\n" "$markdown_data"
+  printf -v markdown_data "%s\n## Local Actions\n\n" "$markdown_data"
   for action in "${local_actions[@]}"; do
     printf -v markdown_data "%s- %s\n" "$markdown_data" "$action"
   done
 fi
 
 if [[ ${#organization_actions[@]} -gt 0 ]]; then
-  printf -v markdown_data "%s\n## Organization Actions\n" "$markdown_data"
+  printf -v markdown_data "%s\n## Organization Actions\n\n" "$markdown_data"
   for action in "${organization_actions[@]}"; do
     printf -v markdown_data "%s- %s\n" "$markdown_data" "$action"
   done
 fi
 
 if [[ ${#public_actions[@]} -gt 0 ]]; then
-  printf -v markdown_data "%s\n## Public Actions\n" "$markdown_data"
+  printf -v markdown_data "%s\n## Public Actions\n\n" "$markdown_data"
   for action in "${public_actions[@]}"; do
     printf -v markdown_data "%s- %s\n" "$markdown_data" "$action"
   done

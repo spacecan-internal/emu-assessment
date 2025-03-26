@@ -12,7 +12,7 @@ printf -v markdown_data "# Repo Environments and Secrets\n\n"
 for repo in $(echo "${data}" | jq -r '.[] | select(.env != []) | .repo'); do
   envs=$(echo "${data}" | jq -r ".[] | select(.repo == \"${repo}\") | .env[]")
   for env in $(echo "${envs}" | jq -r 'select(.secrets != []) | .name'); do
-    printf -v markdown_data "%s## %s\n\n### Environment: %s\n\nSecrets:\n" "$markdown_data" "$repo" "$env"
+    printf -v markdown_data "%s## %s (Env: %s)\n\nSecrets:\n\n" "$markdown_data" "$repo" "$env"
     secrets=$(echo "${envs}" | jq -r "select(.name == \"${env}\") | .secrets[]?.name")
     for secret in ${secrets}; do
       printf -v markdown_data "%s- %s\n" "$markdown_data" "$secret"
