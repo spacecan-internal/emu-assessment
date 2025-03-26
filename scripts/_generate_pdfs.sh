@@ -56,5 +56,11 @@ install_brew_package "weasyprint"
 for md_file in *.md; do
   pdf_file="${md_file%.md}.pdf"
   pandoc --pdf-engine weasyprint "${md_file}" --o "${pdf_file}" 2>/dev/null
-  echo "Created ${pdf_file}"
+  echo "Updated ${pdf_file}"
 done
+
+cd "$(git rev-parse --show-toplevel)" || exit
+if [ -f "playbook.md" ]; then
+  pandoc --pdf-engine weasyprint playbook.md --o playbook.pdf 2>/dev/null
+  echo "Updated playbook.pdf"
+fi
