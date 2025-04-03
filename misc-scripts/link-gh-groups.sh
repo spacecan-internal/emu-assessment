@@ -66,34 +66,32 @@ fetch_external_groups() {
 
 __install_dependencies || exit 1
 
-# TODO verify the org exists using the current user's token
+# TODO verify the org exists using the current user's token/gh auth status
 # VERIFY_ORG=$(gh api "/orgs/${ORG}" 2>&1)
 
 echo "Export ${SHEET_NAME} sheet from ${EXCEL_FILE} file to ${CSV_FILE}..."
 excel_sheet_to_csv "${EXCEL_FILE}" "${SHEET_NAME}" > "${CSV_FILE}"
+
 echo "Converting exported sheet as CSV from ${CSV_FILE} to JSON here: ${CSV_AS_JSON_FILE}..."
 csv_to_json "${CSV_FILE}" > "${CSV_AS_JSON_FILE}"
 
-echo "Fetch existing external groups from ${ORG}..."
 GH_GROUPS=$(fetch_external_groups "$ORG")
 GH_GROUPS_LENGTH=$(echo "$GH_GROUPS" | jq length)
 echo "Fetched ${GH_GROUPS_LENGTH} external groups from ${ORG}, saving to ${GH_EXTERNAL_GROUPS_FILE}..."
 echo "$GH_GROUPS" > "$GH_EXTERNAL_GROUPS_FILE"
 
-echo "Mapping Azure groups to GitHub groups..."
 json_array="[]"
-# echo "$GH_GROUPS" | jq -c '.[]' |
 while IFS= read -r group; do
+  group_id="$(echo "$group" | jq -r '.group_id')"
   group_name=$(echo "$group" | jq -r '.group_name')
 
-  # Find matching rows in the CSV file for the current GitHub group
+  # Find matching rows in the exported csv_to_json file for the current GitHub group
   matching_row=$(jq -r --arg group_name "$group_name" --arg azure_column "$AZURE_GROUP_COLUMN" \
     '.[] | select(.[$azure_column] == $group_name)' "$CSV_AS_JSON_FILE")
 
   if [ -n "$matching_row" ]; then
-    group_id="$(echo "$group" | jq -r '.group_id')"
-    github_team_name="$(echo "$matching_row" | jq --arg github_team_column "$GITHUB_TEAM_COLUMN" '.[$github_team_column]')"
-    # echo "Match:: (${group_id})/${github_team_name} => ${group_name}"
+    github_team_name="$(echo "$matching_row" | jq --arg github_team_column "$GITHUB_TEAM_COLUMN" '.[$github_team_column]' -r)"
+    echo "AZ_Group: ${group_name} - GH_ID: ${group_id} - GH_Team: ${github_team_name}"
 
     json_array=$(echo "$json_array" | jq -c --arg group_id "$group_id" --arg group_name "$group_name" --arg github_team_name "$github_team_name" \
       '. += [{ "group_id": $group_id, "group_name": $group_name, "github_team_name": $github_team_name }]')
@@ -102,7 +100,7 @@ while IFS= read -r group; do
   fi
 done < <(jq -c '.[]' "$GH_EXTERNAL_GROUPS_FILE")
 
-echo "Saving the mapping to ${GH_GROUPS_MAPPING_FILE}..."
+echo "Saving mapped record to ${GH_GROUPS_MAPPING_FILE}..."
 echo "$json_array" > "$GH_GROUPS_MAPPING_FILE"
 
 # echo "Linking groups from that JSON to ${ORG}..."
