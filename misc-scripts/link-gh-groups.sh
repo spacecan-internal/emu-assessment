@@ -19,6 +19,7 @@ CSV_FILE="${EXCEL_FILE%.xlsx}.csv"
 CSV_AS_JSON_FILE="${EXCEL_FILE%.xlsx}.json"
 
 GH_EXTERNAL_GROUPS_FILE="${ORG}_external_groups.json"
+GH_GROUPS_MAPPING_FILE="${ORG}_group_mapping.json"
 
 __install_dependencies() {
   command -v brew >/dev/null 2>&1 || {
@@ -77,55 +78,39 @@ echo "Fetch existing external groups from ${ORG}..."
 GH_GROUPS=$(fetch_external_groups "$ORG")
 GH_GROUPS_LENGTH=$(echo "$GH_GROUPS" | jq length)
 echo "Fetched ${GH_GROUPS_LENGTH} external groups from ${ORG}, saving to ${GH_EXTERNAL_GROUPS_FILE}..."
-echo "$GH_GROUPS" > "${ORG}_external_groups.json"
+echo "$GH_GROUPS" > "$GH_EXTERNAL_GROUPS_FILE"
 
 echo "Mapping Azure groups to GitHub groups..."
-output_array="[]"
-echo "$GH_GROUPS" | jq -c '.[]' | while IFS= read -r group; do
-  echo "$group"
+json_array="[]"
+# echo "$GH_GROUPS" | jq -c '.[]' |
+while IFS= read -r group; do
   group_name=$(echo "$group" | jq -r '.group_name')
-  group_id=$(echo "$group" | jq -r '.group_id')
 
   # Find matching rows in the CSV file for the current GitHub group
   matching_row=$(jq -r --arg group_name "$group_name" --arg azure_column "$AZURE_GROUP_COLUMN" \
     '.[] | select(.[$azure_column] == $group_name)' "$CSV_AS_JSON_FILE")
 
   if [ -n "$matching_row" ]; then
+    group_id="$(echo "$group" | jq -r '.group_id')"
     github_team_name="$(echo "$matching_row" | jq --arg github_team_column "$GITHUB_TEAM_COLUMN" '.[$github_team_column]')"
-    # echo "GitHub team name: ${github_team_name}"
-    # echo "Found matching rows for GitHub group: ${group_name}"
-    # echo "$matching_row"
+    # echo "Match:: (${group_id})/${github_team_name} => ${group_name}"
 
-    json_array=$(echo "$json_array" | jq --arg group_id "$group_id" --arg group_name "$group_name" --arg github_team_name "$github_team_name" \
+    json_array=$(echo "$json_array" | jq -c --arg group_id "$group_id" --arg group_name "$group_name" --arg github_team_name "$github_team_name" \
       '. += [{ "group_id": $group_id, "group_name": $group_name, "github_team_name": $github_team_name }]')
   else
     echo "No matching rows found for GitHub group: ${group_name}"
   fi
-done
+done < <(jq -c '.[]' "$GH_EXTERNAL_GROUPS_FILE")
 
-echo "Saving the mapping to ${ORG}_group_mapping.json..."
-echo "$json_array" > "${ORG}_group_mapping.json"
+echo "Saving the mapping to ${GH_GROUPS_MAPPING_FILE}..."
+echo "$json_array" > "$GH_GROUPS_MAPPING_FILE"
 
 # echo "Linking groups from that JSON to ${ORG}..."
-# jq -c '.[]' "$CSV_AS_JSON_FILE" | while read -r group; do
-#   group_name=$(echo "$group" | jq -r '.GitHub\ Team')
-#   # echo "$group_name"
-
-#   group_id=$(echo "$GH_GROUPS" | jq -r ".[] | select(.name == \"${group_name}\") | .id")
-#   # echo "$group_id"
-
-#   echo "Linking group: ${group_name} (${group_id}) to ${ORG}"
-#   # TODO use (create-team                   Creates a GitHub team and optionally links it to an IdP group.)
-
-#   # gh api \
-#   #   -H "Accept: application/vnd.github+json" \
-#   #   -H "X-GitHub-Api-Version: 2022-11-28" \
-#   #   -X PUT \
-#   #   "/orgs/${ORG}/external-groups/${group_id}" \
-#   #   -f group_id="${group_id}" \
-#   #   -f group_name="${group_name}"
+# jq -c '.[]' "$GH_GROUPS_MAPPING_FILE" | while read -r group; do
+#   # TODO Get group_id, group_name, github_team_name
+#   # echo "Linking group: ${group_name} (${group_id}) to ${ORG}"
+#   # TODO use (gh gei create-team to link)
 # done
 
-# sh ./link-gh-groups.sh 'avolta-ag' 'Github Azure mappings.xlsx' 'GitHub - Azure Mapping' 'Azure Group Actual' 'GitHub Team'
-# sh ./link-gh-groups.sh Solidify-EMU-Test 'Github Azure mappings.xlsx' 'GitHub - Azure Mapping' 'Azure Group Actual' 'GitHub Team'
+# bash ./link-gh-groups.sh 'avolta-ag' 'Github Azure mappings.xlsx' 'GitHub - Azure Mapping' 'Azure Group Actual' 'GitHub Team'
 # jq -r --arg group_name "AZG_GitHub_SSO_GH_CA_Advertisement-Promotion_AutoQA" --arg azure_column "Azure Group Actual" '.[] | select(.[$azure_column] == $group_name)' ./Github\ Azure\ mappings.json
