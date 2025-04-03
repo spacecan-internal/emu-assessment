@@ -32,7 +32,7 @@ fi
 CSV_FILE="${EXCEL_FILE%.xlsx}.csv"
 CSV_AS_JSON_FILE="${EXCEL_FILE%.xlsx}.json"
 
-__install_dependencies() {
+install_dependencies() {
   command -v brew >/dev/null 2>&1 || {
     echo "brew not found. Installing..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || { echo "Failed to install brew"; exit 1; }
@@ -41,6 +41,11 @@ __install_dependencies() {
   command -v gh >/dev/null 2>&1 || {
     echo "gh not found. Installing..."
     brew install gh || { echo "Failed to install gh"; exit 1; }
+  }
+
+  gh extension list | grep -q 'gh-gei' || {
+    echo "gh-gei extension not found. Installing..."
+    gh extension install github/gh-gei || { echo "Failed to install gh-gei extension"; exit 1; }
   }
 
   command -v pipx >/dev/null 2>&1 || {
@@ -71,6 +76,32 @@ get_by_key_from_json_object() {
   echo "$json_object" | jq --arg key "$key" '.[$key]' -r
 }
 
+check_env_var() {
+  local var_name="$1"
+  local var_value="${!var_name}"
+
+  if [ -z "$var_value" ]; then
+    echo "$var_name is not set. Please set the $var_name environment variable."
+    exit 1
+  fi
+}
+
+get_org_membership() {
+  gh api "/user/memberships/orgs/${1}" 2>/dev/null | jq -r '.state' || echo "inactive"
+}
+check_gh_auth_org_membership() {
+  local org="$1"
+  local membership
+  membership="$(get_org_membership "$ORG")"
+
+  if [ "$membership" != "active" ]; then
+    echo "Your GitHub account does not have access to the organization '${ORG}' or you are not logged in."
+    echo "Please ensure you are logged in with 'gh auth login' and have the necessary permissions."
+    echo "Or maybe you need to 'gh auth switch' to the correct account."
+    exit 1
+  fi
+}
+
 create_team_using_gh_gei() {
   local org="$1"
   local gh_team="$2"
@@ -79,28 +110,19 @@ create_team_using_gh_gei() {
   gh gei create-team --github-org "$org" --team-name "$gh_team" --idp-group "$az_group"
 }
 
-__install_dependencies || exit 1
+install_dependencies || exit 1
 
-VERIFY_ORG=$(gh api "/user/memberships/orgs/${ORG}" 2>/dev/null | jq -r '.state')
-if [ "$VERIFY_ORG" != "active" ]; then
-  echo "Your GitHub account does not have access to the organization '${ORG}' or you are not logged in."
-  echo "Please ensure you are logged in with 'gh auth login' and have the necessary permissions."
-  echo "Or maybe you need to 'gh auth switch' to the correct account."
-  exit 1
-fi
+check_gh_auth_org_membership "$ORG"
+
+# Please follow the instructions here: https://docs.github.com/en/migrations/using-github-enterprise-importer/migrating-between-github-products/managing-access-for-a-migration-between-github-products#granting-the-migrator-role-with-the-gei-extension
+# You'll need these requird scoped in your ==>(CLASSIC)<== PAT: https://docs.github.com/en/migrations/using-github-enterprise-importer/migrating-between-github-products/managing-access-for-a-migration-between-github-products#granting-the-migrator-role-with-the-gei-extension
+check_env_var "GH_PAT"
 
 echo "Export ${SHEET_NAME} sheet from ${EXCEL_FILE} file to ${CSV_FILE}..."
 excel_sheet_to_csv "${EXCEL_FILE}" "${SHEET_NAME}" > "${CSV_FILE}"
 
 echo "Converting exported sheet as CSV from ${CSV_FILE} to JSON here: ${CSV_AS_JSON_FILE}..."
 csv_to_json "${CSV_FILE}" > "${CSV_AS_JSON_FILE}"
-
-if [ -z "$GH_PAT" ]; then
-  echo "GH_PAT is not set. Please set the GH_PAT environment variable."
-  echo "Please follow the instructions here: https://docs.github.com/en/migrations/using-github-enterprise-importer/migrating-between-github-products/managing-access-for-a-migration-between-github-products#granting-the-migrator-role-with-the-gei-extension"
-  echo "You'll need these requird scoped in your ==>(CLASSIC)<== PAT: https://docs.github.com/en/migrations/using-github-enterprise-importer/migrating-between-github-products/managing-access-for-a-migration-between-github-products#granting-the-migrator-role-with-the-gei-extension"
-  exit 1
-fi
 
 while IFS= read -r group; do
   az_group="$(get_by_key_from_json_object "$group" "$AZURE_GROUP_COLUMN")"
