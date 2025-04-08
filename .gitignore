@@ -3,3 +3,4 @@
 .DS_Store
 .act
 build.sh
+*.log
