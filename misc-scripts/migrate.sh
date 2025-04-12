@@ -2,15 +2,18 @@
 
 # Usage:
 # sh ./migrate.sh <source_org> <target_org> <excel_file> <sheet_name> <repo_name_column> <production_migration_status_column>
-# Example:
+#
+# Examples:
 # sh ./migrate.sh dufry avolta-migration-sandbox 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status'
 # sh ./migrate.sh dufry avolta-ag 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status'
 
 # TODOs:
-# - Add an attribute to define output file
-# - Update the filters to select certain waves to be dynamic
-# - Output (total number of repos) - (number of repos to be migrated) - (number of repos to be skipped)
-# - After the script is done, open the diff of the migration scripts (original vs cleaned) in VSCode
+# - [ ] Add an attribute to define output file
+# - [ ] Update the filters to select certain waves to be dynamic
+# - [x] Output (total number of repos) - (number of repos to be migrated) - (number of repos to be skipped)
+# - [x] After the script is done, open the diff of the migration scripts (original vs cleaned) in VSCode
+# - [ ] If the excel file or sheet name aren't correct or not found, then print a message and exit
+# - [ ] If the columns for repo name and production migration status aren't correct or not found, then print a message and exit
 
 # REPO_ROOT="$(git rev-parse --show-toplevel)"
 DIR="$(dirname "$(readlink -f "$0")")"
@@ -64,6 +67,7 @@ done
 generate_migration_script "$SOURCE_ORG" "$TARGET_ORG" "$MIGRATE_SCRIPT"
 
 skip_line=0
+total_skipped_lines=0
 echo "" > "$MIGRATE_SCRIPT_CLEANED"
 # Process the migration file line by line
 while IFS= read -r line; do
@@ -72,15 +76,28 @@ while IFS= read -r line; do
   for repo in "${repos_to_skip[@]}"; do
     if [[ "$line" == *"\$RepoMigrations[\"$repo\"]"* || "$line" == *"--target-repo \"$repo\""* ]]; then
       skip_line=1
+      ((total_skipped_lines++))
       # echo "Skipping: $line"
       break
     fi
   done
 
   if [[ $skip_line -eq 0 ]]; then
-    echo "$line"
+    # echo "$line"
     echo "$line" >>"$MIGRATE_SCRIPT_CLEANED"
   fi
 done <"$MIGRATE_SCRIPT"
+
+# Output (total number of repos) - (number of repos to be migrated) - (number of repos to be skipped)
+total_repos="${#all_repos[@]}"
+repos_to_migrate_count="${#repos_to_migrate[@]}"
+repos_to_skip_count="${#repos_to_skip[@]}"
+echo "Total number of repos: $total_repos"
+echo "Number of repos to be migrated: $repos_to_migrate_count"
+echo "Number of repos to be skipped: $repos_to_skip_count"
+echo "Total number of skipped lines: $total_skipped_lines"
+
+# Open the diff of the migration scripts (original vs cleaned) in VSCode
+code --diff "$MIGRATE_SCRIPT" "$MIGRATE_SCRIPT_CLEANED"
 
 # removeEmptyLines "$MIGRATE_SCRIPT_CLEANED"
