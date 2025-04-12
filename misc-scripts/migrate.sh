@@ -3,7 +3,8 @@
 # Usage:
 # sh ./migrate.sh <source_org> <target_org> <excel_file> <sheet_name> <repo_name_column> <production_migration_status_column>
 # Example:
-# sh ./migrate.sh dufry avolta-migration-sandbox 'Github Azure mappings.xlsx' 'CA Repositories Full' 'Repository Scope' 'Production Migration Status'
+# sh ./migrate.sh dufry avolta-migration-sandbox 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status'
+# sh ./migrate.sh dufry avolta-ag 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status'
 
 # REPO_ROOT="$(git rev-parse --show-toplevel)"
 DIR="$(dirname "$(readlink -f "$0")")"
@@ -44,7 +45,7 @@ read -a all_repos <<< $(repos_list_names "$SOURCE_ORG" | jq -r '.[]')
 # Get repos to migrate
 # jq -r '.[] | .["Repository Scope"]' "sheet.json"
 # TODO Update the following filters to be dynamic
-read -a repos_to_migrate <<< $(jq -r '.[] | select(.["'"$PRODUCTION_MIGRATION_STATUS_COLUMN"'"] == "In Progress" or .["'"$PRODUCTION_MIGRATION_STATUS_COLUMN"'"] == "Wave 1") | .["'"$REPO_NAME_COLUMN"'"]' "$DIR/sheet.json")
+read -a repos_to_migrate <<< $(jq -r '.[] | select(.["'"$PRODUCTION_MIGRATION_STATUS_COLUMN"'"] == "Wave 2" or .["'"$PRODUCTION_MIGRATION_STATUS_COLUMN"'"] == "Wave 3") | .["'"$REPO_NAME_COLUMN"'"]' "$DIR/sheet.json")
 # printf '%s\n' "${repos_to_migrate[@]}"
 
 repos_to_skip=()
