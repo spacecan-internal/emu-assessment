@@ -68,7 +68,7 @@ generate_migration_script "$SOURCE_ORG" "$TARGET_ORG" "$MIGRATE_SCRIPT"
 
 skip_line=0
 total_skipped_lines=0
-echo "" > "$MIGRATE_SCRIPT_CLEANED"
+printf "" > "$MIGRATE_SCRIPT_CLEANED"
 # Process the migration file line by line
 while IFS= read -r line; do
   skip_line=0
