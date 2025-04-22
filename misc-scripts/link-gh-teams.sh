@@ -10,11 +10,14 @@
 # 5. Uses the GitHub CLI to create and link GitHub teams to Azure groups based on the extracted data.
 # 6. Verifies the user's access to the specified GitHub organization.
 # 7. Ensures the required GitHub Personal Access Token (GH_PAT) is set for authentication.
-
+#
+# gh auth switch to avolta account, which is the owner of the target org.
+# export GH_PAT=<avolta-gh-pat>
+#
 # Usage:
 # sh ./link-gh-teams.sh <org> <excel_file> <sheet_name> <azure_group_column> <github_team_column>
 # Example:
-# sh ./link-gh-teams.sh 'my-org' 'Github Azure mappings.xlsx' 'GitHub - Azure Mapping' 'Azure Group Actual' 'GitHub Team'
+# sh ./link-gh-teams.sh 'avolta-ag' 'Github Azure mappings.xlsx' 'GitHub - Azure Mapping' 'Azure Group Actual' 'GitHub Team'
 
 # REPO_ROOT="$(git rev-parse --show-toplevel)"
 DIR="$(dirname "$(readlink -f "$0")")"

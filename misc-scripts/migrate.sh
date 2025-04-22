@@ -3,7 +3,11 @@
 # Usage:
 # sh ./migrate.sh <source_org> <target_org> <excel_file> <sheet_name> <repo_name_column> <production_migration_status_column>
 #
+# gh auth switch to personal account (which is owner over the source org)
+# export GH_PAT=<personal-gh-pat>
+#
 # Examples:
+#
 # sh ./migrate.sh dufry avolta-migration-sandbox 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status'
 # sh ./migrate.sh dufry avolta-ag 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status'
 
