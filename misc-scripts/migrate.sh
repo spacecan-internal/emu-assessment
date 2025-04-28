@@ -1,19 +1,19 @@
 #!/bin/bash
 
 # Usage:
-# sh ./migrate.sh <source_org> <target_org> <excel_file> <sheet_name> <repo_name_column> <production_migration_status_column>
+# sh ./migrate.sh <source_org> <target_org> <excel_file> <sheet_name> <repo_name_column> <status_column> <status_column_filter>
 #
 # gh auth switch to personal account (which is owner over the source org)
 # export GH_PAT=<personal-gh-pat>
 #
 # Examples:
 #
-# sh ./migrate.sh dufry avolta-migration-sandbox 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status'
-# sh ./migrate.sh dufry avolta-ag 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status'
+# sh ./migrate.sh dufry avolta-migration-sandbox 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status' 'Wave 6'
+# sh ./migrate.sh dufry avolta-ag 'Github Azure mappings.xlsx' 'CA Repos Full_Migration Plan' 'Repository Scope' 'Production Migration Status' 'Wave 6'
 
 # TODOs:
 # - [ ] Add an attribute to define output file
-# - [ ] Update the filters to select certain waves to be dynamic
+# - [x] Update the filters to select certain waves to be dynamic
 # - [x] Output (total number of repos) - (number of repos to be migrated) - (number of repos to be skipped)
 # - [x] After the script is done, open the diff of the migration scripts (original vs cleaned) in VSCode
 # - [ ] If the excel file or sheet name aren't correct or not found, then print a message and exit
@@ -32,10 +32,11 @@ TARGET_ORG="$2"
 EXCEL_FILE="$3"
 SHEET_NAME="$4"
 REPO_NAME_COLUMN="$5"
-PRODUCTION_MIGRATION_STATUS_COLUMN="$6"
+STATUS_COLUMN="$6"
+STATUS_COLUMN_FILTER="$7"
 
-if [ "$#" -ne 6 ]; then
-  echo "Usage: $0 <source_org> <target_org> <excel_file> <sheet_name> <repo_name_column> <production_migration_status_column>"
+if [ "$#" -ne 7 ]; then
+  echo "Usage: $0 <source_org> <target_org> <excel_file> <sheet_name> <repo_name_column> <status_column> <status_column_filter>"
   exit 1
 fi
 
@@ -57,7 +58,7 @@ read -a all_repos <<< $(repos_list_names "$SOURCE_ORG" | jq -r '.[]')
 
 # Get repos to migrate
 # jq -r '.[] | .["Repository Scope"]' "sheet.json"
-read -a repos_to_migrate <<< $(jq -r '.[] | select(.["'"$PRODUCTION_MIGRATION_STATUS_COLUMN"'"] == "Wave 2" or .["'"$PRODUCTION_MIGRATION_STATUS_COLUMN"'"] == "Wave 3") | .["'"$REPO_NAME_COLUMN"'"]' "$DIR/sheet.json")
+read -a repos_to_migrate <<< $(jq -r '.[] | select(.["'"$STATUS_COLUMN"'"] == "'"$STATUS_COLUMN_FILTER"'") | .["'"$REPO_NAME_COLUMN"'"]' "$DIR/sheet.json")
 # printf '%s\n' "${repos_to_migrate[@]}"
 
 repos_to_skip=()
