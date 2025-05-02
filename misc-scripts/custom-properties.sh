@@ -21,8 +21,18 @@ while read -r REPO; do
   REPO_NAME=$(echo "$REPO" | jq -r '.name')
   IS_ARCHIVED=$(echo "$REPO" | jq -r '.isArchived')
 
-  gh api -H "Accept: application/vnd.github+json" \
+  properties=$(gh api -H "Accept: application/vnd.github+json" \
         -H "X-GitHub-Api-Version: 2022-11-28" \
-        "/repos/$ORG/$REPO_NAME/properties/values" | \
-  jq -r --arg repo "$REPO_NAME" --arg archived "$IS_ARCHIVED" '.[] | [$repo, $archived, .property_name, .value] | @csv' >> "$FILE"
+        "/repos/$ORG/$REPO_NAME/properties/values")
+
+  echo "$properties" | jq -e 'length > 0' > /dev/null
+  if [ $? -ne 0 ]; then
+    properties=""
+  fi
+
+  if [ -z "$properties" ] ; then
+    echo "$REPO_NAME,$IS_ARCHIVED,," >> "$FILE"
+  else
+    echo "$properties" | jq -r --arg repo "$REPO_NAME" --arg archived "$IS_ARCHIVED" '.[] | [$repo, $archived, .property_name, .value] | @csv' >> "$FILE"
+  fi
 done
