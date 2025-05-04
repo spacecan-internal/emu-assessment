@@ -59,7 +59,7 @@ read -a repos_to_migrate <<< $(jq -r '.[] | select(.["'"$STATUS_COLUMN"'"] == "'
 
 repos_to_skip=()
 for repo in "${all_repos[@]}"; do
-  if [[ ! " ${repos_to_migrate[*]} " =~ ${repo} ]]; then
+  if [[ ! " ${repos_to_migrate[*]} " =~ " ${repo} " ]]; then
     repos_to_skip+=("$repo")
   fi
 done
