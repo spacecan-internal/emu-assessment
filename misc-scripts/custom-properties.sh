@@ -7,22 +7,25 @@ source "$SCRIPT_DIR/lib.sh"
 # along with its custom properties, and saves the data to a CSV file.
 
 if [ -z "$1" ]; then
-  echo "Usage: $0 <ORG> [LIMIT:1000]"
+  echo "Usage: $0 <ORG> [LIMIT:1000] [OUTPUT_FILE:<ORG>_repos_properties_<timestamp>.csv]"
   exit 1
 fi
 
 ORG="$1"
 LIMIT=${2:-1000}
+FILE="${3:-${ORG}_repos_properties_$(get_timestamp).csv}"
 
-FILE="${ORG}_repos_properties.csv"
-
-echo "Fetching repository properties for organization: $ORG with a limit of $LIMIT repositories. Output will be saved to $FILE..."
+echo "Fetching repository properties for organization: $ORG with a limit of $LIMIT repositories. Output will be saved to $FILE"
 
 # Check if the user has access to the organization
 check_gh_auth_org_membership "$ORG"
 
 # Use gh_repos_list function from lib.sh to fetch repositories
 repos=$(gh_repos_list "$ORG" "true" "$LIMIT")
+if [ $? -ne 0 ]; then
+  print_error "Failed to fetch repositories for organization $ORG"
+  exit 1
+fi
 
 # Create CSV header
 echo "repo,is_archived,property_name,value" > "$FILE"

@@ -12,6 +12,17 @@ print_error() { printf "\xE2\x9D\x8C %s\n" "$1"; }
 
 print_separator() { printf "\n\n%s\n\n" "$(printf '%.0s-' {1..50})"; }
 
+# Get the current date and time
+# $1 - Human-readable (optional) true/false - defaults to false
+# $2 - Timestamp format (optional) [default: "%Y%m%d%H%M%S"]
+get_timestamp() {
+  if [ "${1:-"false"}" = "true" ]; then
+    date +"${2:-"%Y-%m-%d %H:%M:%S"}"
+  else
+    date +"${2:-"%Y%m%d%H%M%S"}"
+  fi
+}
+
 #===================================================================================================
 # File helpers
 #===================================================================================================
