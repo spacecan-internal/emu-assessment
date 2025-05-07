@@ -278,3 +278,166 @@ generate_migration_script() {
 
   gh gei generate-script --github-source-org "$github_source_org" --github-target-org "$github_target_org" --download-migration-logs --output "$output_script"
 }
+
+#===================================================================================================
+# Repository admin helpers
+#===================================================================================================
+
+# Get all repositories from an organization sorted alphabetically
+# $1 - organization name
+# $2 - limit (optional, default: 1000)
+# Returns: JSON array of repositories with name and isArchived fields
+get_org_repos() {
+  local org="$1"
+  local limit="${2:-1000}"
+
+  if [ -z "$org" ]; then
+    echo "Usage: get_org_repos <org> [limit]"
+    return 1
+  fi
+
+  gh repo list "$org" --json name,isArchived --limit "$limit" | jq 'sort_by(.name | ascii_downcase)'
+}
+
+# Get admin users for a repository
+# $1 - organization name
+# $2 - repository name
+# $3 - include full name (optional, default: false)
+# Returns: formatted string of admin users
+get_repo_admin_users() {
+  local org="$1"
+  local repo_name="$2"
+  local include_full_name="${3:-false}"
+  local users_list=""
+
+  if [ -z "$org" ] || [ -z "$repo_name" ]; then
+    echo "Usage: get_repo_admin_users <org> <repo_name> [include_full_name]"
+    return 1
+  fi
+
+  # Get Direct collaborators with admin access
+  local logins
+  logins=$(gh api "/repos/$org/$repo_name/collaborators?affiliation=direct&per_page=100" \
+    --jq '.[] | select(.permissions.admin == true) | .login')
+
+  for login in $logins; do
+    if [ "$include_full_name" = "true" ]; then
+      # Fetch user's full name and sanitize output
+      local user_info
+      user_info=$(gh api "/users/$login" | tr -d '\000-\037')
+      local user_name
+      user_name=$(echo "$user_info" | jq -r '.name // "N/A"' 2>/dev/null || echo "N/A")
+
+      users_list+="$login ($user_name), "
+    else
+      users_list+="$login, "
+    fi
+  done
+
+  # Remove the trailing comma and space
+  users_list=${users_list%, }
+
+  echo "$users_list"
+}
+
+# Get admin teams for a repository
+# $1 - organization name
+# $2 - repository name
+# $3 - include full name (optional, default: false)
+# Returns: formatted string of admin teams
+get_repo_admin_teams() {
+  local org="$1"
+  local repo_name="$2"
+  local include_full_name="${3:-false}"
+  local teams_list=""
+
+  if [ -z "$org" ] || [ -z "$repo_name" ]; then
+    echo "Usage: get_repo_admin_teams <org> <repo_name> [include_full_name]"
+    return 1
+  fi
+
+  # Get teams with admin access
+  local team_logins
+  team_logins=$(gh api "/repos/$org/$repo_name/teams?per_page=100" \
+    --jq '.[] | select(.permission == "admin") | .slug')
+
+  for team in $team_logins; do
+    if [ "$include_full_name" = "true" ]; then
+      # Fetch team's full name and sanitize output
+      local team_info
+      team_info=$(gh api "/orgs/$org/teams/$team" | tr -d '\000-\037')
+      local team_name
+      team_name=$(echo "$team_info" | jq -r '.name // "N/A"' 2>/dev/null || echo "N/A")
+
+      teams_list+="$team ($team_name), "
+    else
+      teams_list+="$team, "
+    fi
+  done
+
+  # Remove the trailing comma and space
+  teams_list=${teams_list%, }
+
+  echo "$teams_list"
+}
+
+# Format a list for CSV output
+# $1 - string to format
+# Returns: quoted string if not empty
+format_csv_list() {
+  local list="$1"
+
+  if [ -n "$list" ]; then
+    echo "\"$list\""
+  else
+    echo ""
+  fi
+}
+
+# Generate a CSV report of repository admins
+# $1 - organization name
+# $2 - include full name (optional, default: false)
+# $3 - output file name (optional, default: <org>_repos_admins.csv)
+generate_repo_admins_report() {
+  local org="$1"
+  local include_full_name="${2:-false}"
+  local output_file="${3:-${org}_repos_admins.csv}"
+
+  if [ -z "$org" ]; then
+    echo "Usage: generate_repo_admins_report <org> [include_full_name] [output_file]"
+    return 1
+  fi
+
+  # Get all repos in the org
+  local repos
+  repos=$(get_org_repos "$org")
+
+  echo "Repository,IsArchived,Admin users,Admin teams" > "$output_file"
+
+  while IFS= read -r repo; do
+    local repo_name
+    repo_name=$(echo "$repo" | jq -r '.name')
+
+    local is_archived
+    is_archived=$(echo "$repo" | jq -r '.isArchived')
+
+    # Get admin users
+    local users_list
+    users_list=$(get_repo_admin_users "$org" "$repo_name" "$include_full_name")
+    local formatted_users
+    formatted_users=$(format_csv_list "$users_list")
+
+    # Get admin teams
+    local teams_list
+    teams_list=$(get_repo_admin_teams "$org" "$repo_name" "$include_full_name")
+    local formatted_teams
+    formatted_teams=$(format_csv_list "$teams_list")
+
+    echo "🔹 Repo: $repo_name, Archived: $is_archived, Users: $formatted_users, Teams: $formatted_teams"
+
+    # Write to the CSV file
+    echo "$repo_name,$is_archived,$formatted_users,$formatted_teams" >> "$output_file"
+  done <<< "$(echo "$repos" | jq -c '.[]')"
+
+  echo "Report generated: $output_file"
+}
