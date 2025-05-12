@@ -409,7 +409,7 @@ generate_repo_admins_report() {
   local repos
   repos=$(gh_repos_list "$org" "true")
 
-  echo "Repository,IsArchived,Admin users,Admin teams" > "$output_file"
+  echo "Repository,Is Archived,Admin users,Admin teams" > "$output_file"
 
   while IFS= read -r repo; do
     local repo_name is_archived users_list teams_list
