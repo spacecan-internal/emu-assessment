@@ -51,7 +51,7 @@ if ! file_exists "$EXCEL_FILE"; then exit 1; fi
 if ! sheet_exists_in_excel_file "$EXCEL_FILE" "$SHEET_NAME"; then exit 1; fi
 
 # TODO - find a way to auto-detect the first header row (sometimes it's 1, sometimes it's 2, depending on the sheet)
-excel_sheet_to_csv_by_name "$EXCEL_FILE" "$SHEET_NAME" "$DIR/sheet.csv" "$HEADER_ROW_NUMBER"
+excel_sheet_to_csv_by_name "$EXCEL_FILE" "$SHEET_NAME" "$HEADER_ROW_NUMBER" "$DIR/sheet.csv"
 csv_to_json "$DIR/sheet.csv" "$DIR/sheet.json"
 
 # Get all repos names

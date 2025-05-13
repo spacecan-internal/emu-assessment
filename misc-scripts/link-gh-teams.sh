@@ -15,9 +15,10 @@
 # export GH_PAT=<avolta-gh-pat>
 #
 # Usage:
-# sh ./link-gh-teams.sh <org> <excel_file> <sheet_name> <azure_group_column> <github_team_column>
+# sh ./link-gh-teams.sh <org> <excel_file> <sheet_name> <azure_group_column> <github_team_column> [<header_row_number>:1]
 # Example:
-# sh ./link-gh-teams.sh 'avolta-ag' 'Github Azure mappings.xlsx' 'GitHub - Azure Mapping' 'Azure Group Actual' 'GitHub Team'
+# sh ./link-gh-teams.sh 'avolta-ag' 'Github Azure mappings.xlsx' 'GitHub - Azure Mapping' 'Azure Group Actual' 'GitHub Team' 2
+# sh ./link-gh-teams.sh 'avolta-ag' 'Github Azure mappings - Global Digital Domain.xlsx' 'GitHub - Azure Mapping - GlbDig' 'Azure Group Actual' 'GitHub Team' '2'
 
 # REPO_ROOT="$(git rev-parse --show-toplevel)"
 DIR="$(dirname "$(readlink -f "$0")")"
@@ -31,8 +32,10 @@ SHEET_NAME="$3"
 AZURE_GROUP_COLUMN="$4"
 GITHUB_TEAM_COLUMN="$5"
 
+HEADER_ROW_NUMBER="${6:-1}"
+
 if [ -z "$ORG" ] || [ -z "$EXCEL_FILE" ] || [ -z "$SHEET_NAME" ] || [ -z "$AZURE_GROUP_COLUMN" ] || [ -z "$GITHUB_TEAM_COLUMN" ]; then
-  echo "Usage: $0 <org> <excel_file> <sheet_name> <azure_group_column> <github_team_column>"
+  echo "Usage: $0 <org> <excel_file> <sheet_name> <azure_group_column> <github_team_column> [<header_row_number>:1]"
   exit 1
 fi
 
@@ -52,10 +55,10 @@ check_gh_auth_org_membership "$ORG"
 check_env_var "GH_PAT"
 
 echo "Export ${SHEET_NAME} sheet from ${EXCEL_FILE} file to ${CSV_FILE}..."
-excel_sheet_to_csv_by_name "${EXCEL_FILE}" "${SHEET_NAME}" > "${CSV_FILE}"
+excel_sheet_to_csv_by_name "${EXCEL_FILE}" "${SHEET_NAME}" "${HEADER_ROW_NUMBER}" >"${CSV_FILE}"
 
 echo "Converting exported sheet as CSV from ${CSV_FILE} to JSON here: ${JSON_FILE}..."
-csv_to_json "${CSV_FILE}" > "${JSON_FILE}"
+csv_to_json "${CSV_FILE}" >"${JSON_FILE}"
 
 while IFS= read -r group; do
   az_group="$(get_by_key_from_json_object "$group" "$AZURE_GROUP_COLUMN")"
@@ -63,4 +66,4 @@ while IFS= read -r group; do
 
   # echo "Creating and linking GitHub team '${gh_team}' to Azure group '${az_group}'..."
   create_team_using_gh_gei "$ORG" "$gh_team" "$az_group"
-done <<< "$(jq -c '.[]' "$JSON_FILE")"
+done <<<"$(jq -c '.[]' "$JSON_FILE")"

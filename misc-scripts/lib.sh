@@ -32,15 +32,19 @@ get_timestamp() {
 # $2 - create file if it does not exist (optional) true/false - defaults to false
 # $3 - file content (optional) - defaults to empty
 file_exists() {
-	if [ -z "$1" ]; then echo "Usage: file_exists <file_path> [create_if_not_found] [file_content_if_not_found]"; return 1; fi
+  if [ -z "$1" ]; then
+    echo "Usage: file_exists <file_path> [create_if_not_found] [file_content_if_not_found]"
+    return 1
+  fi
 
-	if [ ! -f "$1" ]; then
-		if [ "$2" == "true" ]; then
-			if [ -n "$3" ]; then echo "$3" > "$1"; else touch "$1"; fi
-		else
-			echo "File $1 does not exist"; return 1;
-		fi
-	fi
+  if [ ! -f "$1" ]; then
+    if [ "$2" == "true" ]; then
+      if [ -n "$3" ]; then echo "$3" >"$1"; else touch "$1"; fi
+    else
+      echo "File $1 does not exist"
+      return 1
+    fi
+  fi
 }
 
 # Remove empty lines from a file
@@ -171,15 +175,15 @@ list_excel_sheet_columns() {
 # Convert an Excel sheet to CSV
 # $1 - Excel file path
 # $2 - Sheet name
-# $3 - Output CSV file path (optional)
-# $4 - Starting line number (optional) [default: 1]
+# $3 - Starting line number (optional) [default: 1]
+# $4 - Output CSV file path (optional)
 # If no output file is provided, the CSV will be printed to stdout
-# Usage: excel_sheet_to_csv_by_name <excel_file> <sheet_name> [<output_csv_file>] [<start_line>]
+# Usage: excel_sheet_to_csv_by_name <excel_file> <sheet_name> [<start_line>] [<output_csv_file>]
 excel_sheet_to_csv_by_name() {
   local excel_file="$1"
   local sheet_name="$2"
-  local output_csv_file="$3"
-  local start_line="${4:-1}"
+  local start_line="${3:-1}"
+  local output_csv_file="$4"
 
   if [ -z "$output_csv_file" ]; then
     xlsx2csv -n "$sheet_name" "$excel_file" | tail -n +"$start_line"
@@ -409,7 +413,7 @@ generate_repo_admins_report() {
   local repos
   repos=$(gh_repos_list "$org" "true")
 
-  echo "Repository,Is Archived,Admin users,Admin teams" > "$output_file"
+  echo "Repository,Is Archived,Admin users,Admin teams" >"$output_file"
 
   while IFS= read -r repo; do
     local repo_name is_archived users_list teams_list
@@ -426,8 +430,8 @@ generate_repo_admins_report() {
     echo "🔹 Repo: $repo_name, Archived: $is_archived, Users: $users_list, Teams: $teams_list"
 
     # Write to the CSV file
-    echo "$repo_name,$is_archived,$users_list,$teams_list" >> "$output_file"
-  done <<< "$(echo "$repos" | jq -c '.[]')"
+    echo "$repo_name,$is_archived,$users_list,$teams_list" >>"$output_file"
+  done <<<"$(echo "$repos" | jq -c '.[]')"
 
   echo "Report generated: $output_file"
 }
