@@ -6,17 +6,17 @@ set -euo pipefail
 export GH_TOKEN="${GH_TOKEN:-${GITHUB_TOKEN:-}}"
 
 ORG="${1}"
+REPOS_FILE="${2}"
 SINCE=$(date -u -d "90 days ago" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -v-90d +%Y-%m-%dT%H:%M:%SZ)
 
-mkdir -p ../reports
+mkdir -p ../../reports
 
-echo "Fetching repositories for org: $ORG"
-REPOS=$(gh api --paginate "/orgs/${ORG}/repos" --jq '.[].full_name' 2>/dev/null || echo "")
+REPOS=$(jq -r '.[].nameWithOwner' "$REPOS_FILE")
 
 if [ -z "$REPOS" ]; then
-  echo "No repositories found or access denied."
-  echo "[]" > ../reports/actions_usage.json
-  echo "repo,workflow_count,total_runs,success,failure,cancelled,skipped,total_duration_minutes,artifacts_size_mb,cache_size_mb,runner_types" > ../reports/actions_usage.csv
+  echo "No repositories found."
+  echo "[]" > ../../reports/actions-usage.json
+  echo "repo,workflow_count,total_runs,success,failure,cancelled,skipped,total_duration_minutes,artifacts_size_mb,cache_size_mb,runner_types" > ../../reports/actions-usage.csv
   exit 0
 fi
 
@@ -24,8 +24,8 @@ REPO_COUNT=$(echo "$REPOS" | wc -l | tr -d ' ')
 echo "Found $REPO_COUNT repositories"
 
 # Initialize output files
-echo "[" > ../reports/actions_usage.json
-echo "repo,workflow_count,total_runs,success,failure,cancelled,skipped,total_duration_minutes,artifacts_size_mb,cache_size_mb,runner_types" > ../reports/actions_usage.csv
+echo "[" > ../../reports/actions-usage.json
+echo "repo,workflow_count,total_runs,success,failure,cancelled,skipped,total_duration_minutes,artifacts_size_mb,cache_size_mb,runner_types" > ../../reports/actions-usage.csv
 
 FIRST=true
 
@@ -92,15 +92,15 @@ while IFS= read -r REPO; do
   REPO_SHORT="${REPO#*/}"
 
   # Append to CSV
-  echo "\"${REPO_SHORT}\",${WORKFLOW_COUNT},${TOTAL_RUNS},${SUCCESS},${FAILURE},${CANCELLED},${SKIPPED},${TOTAL_DURATION_MIN},${ARTIFACTS_SIZE_MB},${CACHE_SIZE_MB},\"${RUNNER_TYPES}\"" >> ../reports/actions_usage.csv
+  echo "\"${REPO_SHORT}\",${WORKFLOW_COUNT},${TOTAL_RUNS},${SUCCESS},${FAILURE},${CANCELLED},${SKIPPED},${TOTAL_DURATION_MIN},${ARTIFACTS_SIZE_MB},${CACHE_SIZE_MB},\"${RUNNER_TYPES}\"" >> ../../reports/actions-usage.csv
 
   # Append to JSON
   if [ "$FIRST" = true ]; then
     FIRST=false
   else
-    echo "," >> ../reports/actions_usage.json
+    echo "," >> ../../reports/actions-usage.json
   fi
-  cat >> ../reports/actions_usage.json <<EOF
+  cat >> ../../reports/actions-usage.json <<EOF
   {
     "repo": "${REPO_SHORT}",
     "workflow_count": ${WORKFLOW_COUNT},
@@ -120,6 +120,6 @@ EOF
 
 done <<< "$REPOS"
 
-echo "]" >> ../reports/actions_usage.json
+echo "]" >> ../../reports/actions-usage.json
 
 echo "Audit complete. Processed $REPO_COUNT repositories."
