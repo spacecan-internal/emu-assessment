@@ -32,9 +32,15 @@ for REPO in $REPOS; do
       lfsconfig: object(expression: "HEAD:.lfsconfig") {
         __typename
       }
+      languages(first: 10) {
+        edges {
+          node { name }
+          size
+        }
+      }
     }
   }' \
-    --jq '.data.repository' |
+    --jq '.data.repository | .languages = [.languages.edges[] | {name: .node.name, size: .size}]' |
     jq -s '.')
   echo "$REPOSITORIES" >repo.json
   cp $DEST tmp.json
